@@ -27,6 +27,8 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
+	float aspectRatio = float(m_Width) / float(m_Height);
+
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
@@ -35,8 +37,15 @@ void Renderer::Render(Scene* pScene) const
 			gradient += py / static_cast<float>(m_Width);
 			gradient /= 2.0f;
 
-			ColorRGB finalColor{ gradient, gradient, gradient };
+			float directionX = 2 * (((px + 0.5) / m_Width) - 1);
+			float directionY = 1 - (2 * py / m_Height);
 
+			Vector3 rayDirection{directionX, directionY, 1};
+			Ray hitRay{ {0,0,0 }, rayDirection };
+
+			//ColorRGB finalColor{ gradient, gradient, gradient };
+			ColorRGB finalColor{ rayDirection.x, rayDirection.y, rayDirection.z};
+			
 			//Update Color in Buffer
 			finalColor.MaxToOne();
 
