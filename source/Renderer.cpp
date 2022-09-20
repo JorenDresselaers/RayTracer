@@ -46,6 +46,7 @@ void Renderer::Render(Scene* pScene) const
 				static_cast<uint8_t>(finalColor.b * 255));
 		}
 	}
+	
 
 	//@END
 	//Update SDL Surface
