@@ -51,14 +51,15 @@ void Renderer::Render(Scene* pScene) const
 			//ColorRGB finalColor{ gradient, gradient, gradient };
 			//ColorRGB finalColor{ rayDirection.x, rayDirection.y, rayDirection.z};
 			ColorRGB finalColor{};
-			Sphere testSphere{ {0,0,100}, 50.f, 0 };
+			//Sphere testSphere{ {0,0,100}, 50.f, 0 };
+			//GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
 
-			GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
+			pScene->GetClosestHit(hitRay, hitRecord);
+
 			if (hitRecord.didHit)
 			{
-				const float scaled_t = (hitRecord.t - 50.f) / 40.f;
-				finalColor = { scaled_t, scaled_t, scaled_t };
-				//finalColor = materials[hitRecord.materialIndex]->Shade();
+				//const float scaled_t = (hitRecord.t - 50.f) / 40.f;
+				finalColor = materials[hitRecord.materialIndex]->Shade();
 			}
 			
 			//Update Color in Buffer
