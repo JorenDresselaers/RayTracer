@@ -56,7 +56,9 @@ void Renderer::Render(Scene* pScene) const
 			GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
 			if (hitRecord.didHit)
 			{
-				finalColor = materials[hitRecord.materialIndex]->Shade();
+				const float scaled_t = (hitRecord.t - 50.f) / 40.f;
+				finalColor = { scaled_t, scaled_t, scaled_t };
+				//finalColor = materials[hitRecord.materialIndex]->Shade();
 			}
 			
 			//Update Color in Buffer
