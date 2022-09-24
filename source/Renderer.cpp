@@ -30,6 +30,7 @@ void Renderer::Render(Scene* pScene) const
 	float aspectRatio = float(m_Width) / float(m_Height);
 
 	//Sphere testSphere{ Vector3{0,0,100}, 50.f, 0 };
+	Plane testPlane{ {0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, 0 };
 
 	for (int px{}; px < m_Width; ++px)
 	{
@@ -39,8 +40,6 @@ void Renderer::Render(Scene* pScene) const
 			gradient += py / static_cast<float>(m_Width);
 			gradient /= 2.0f;
 
-			//float directionX = 2 * (((px + 0.5) / m_Width) - 1);
-			//float directionY = 1 - (2 * py / m_Height);
 			float directionX = (2 * ((px + 0.5) / m_Width) - 1) * aspectRatio;
 			float directionY = (1 - 2 * ((py + .5) / m_Height));
 
@@ -50,12 +49,15 @@ void Renderer::Render(Scene* pScene) const
 
 			//ColorRGB finalColor{ gradient, gradient, gradient };
 			//ColorRGB finalColor{ rayDirection.x, rayDirection.y, rayDirection.z};
-			ColorRGB finalColor{};
 			//Sphere testSphere{ {0,0,100}, 50.f, 0 };
 			//GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
+			
+			
+			GeometryUtils::HitTest_Plane(testPlane, hitRay, hitRecord);
 
-			pScene->GetClosestHit(hitRay, hitRecord);
+			//pScene->GetClosestHit(hitRay, hitRecord);
 
+			ColorRGB finalColor{};
 			if (hitRecord.didHit)
 			{
 				//const float scaled_t = (hitRecord.t - 50.f) / 40.f;

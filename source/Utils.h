@@ -3,6 +3,7 @@
 #include <fstream>
 #include "Math.h"
 #include "DataTypes.h"
+#include <iostream>
 
 namespace dae
 {
@@ -27,10 +28,10 @@ namespace dae
 				return false;
 			}
 
-			if (t > ray.min && t < hitRecord.t)
+			if (t > ray.min && t < ray.max)
 			{
-				const float p1{ (-b + sqrt(discriminant)) / (2 * a) };
-				const float p2{ (-b - sqrt(discriminant)) / (2 * a) };
+				//const float p1{ (-b + sqrt(discriminant)) / (2 * a) };
+				//const float p2{ (-b - sqrt(discriminant)) / (2 * a) };
 
 				if (!ignoreHitRecord)
 				{
@@ -38,6 +39,7 @@ namespace dae
 					hitRecord.t = t;
 					hitRecord.materialIndex = sphere.materialIndex;
 					hitRecord.didHit = true;
+					//hitRecord.normal = sphere.origin
 				}
 				return true;
 			}
@@ -57,8 +59,23 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W1
-			assert(false && "No Implemented Yet!");
+			const float t{ Vector3::Dot((plane.origin - ray.origin), plane.normal) / Vector3::Dot(ray.direction, plane.normal)};
+
+			if (t > ray.min && t < ray.max)
+			{
+				const Vector3 intersectionPoint{ ray.origin + (t * ray.direction) };
+				if (!ignoreHitRecord)
+				{
+					hitRecord.t = t;
+					hitRecord.didHit = true;
+					hitRecord.materialIndex = plane.materialIndex;
+					hitRecord.normal = plane.normal;
+				}
+				
+				//std::cout << "\n" << t;
+				return true;
+			}
+
 			return false;
 		}
 
