@@ -59,7 +59,7 @@ namespace dae
 		//PLANE HIT-TESTS
 		inline bool HitTest_Plane(const Plane& plane, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			const float t{ Vector3::Dot((plane.origin - ray.origin), plane.normal) / Vector3::Dot(ray.direction, plane.normal)};
+			const float t{ Vector3::Dot((plane.origin - ray.origin), plane.normal) / Vector3::Dot(ray.direction, plane.normal) };
 
 			if (t > ray.min && t < ray.max)
 			{
@@ -70,6 +70,7 @@ namespace dae
 					hitRecord.didHit = true;
 					hitRecord.materialIndex = plane.materialIndex;
 					hitRecord.normal = plane.normal;
+					//hitRecord.origin = intersectionPoint;
 				}
 				
 				//std::cout << "\n" << t;

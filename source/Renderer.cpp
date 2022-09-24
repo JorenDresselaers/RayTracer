@@ -53,15 +53,22 @@ void Renderer::Render(Scene* pScene) const
 			//GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
 			
 			
-			GeometryUtils::HitTest_Plane(testPlane, hitRay, hitRecord);
+			//GeometryUtils::HitTest_Plane(testPlane, hitRay, hitRecord);
 
-			//pScene->GetClosestHit(hitRay, hitRecord);
+			pScene->GetClosestHit(hitRay, hitRecord);
 
 			ColorRGB finalColor{};
 			if (hitRecord.didHit)
 			{
 				//const float scaled_t = (hitRecord.t - 50.f) / 40.f;
+
+				//t-value visualization
+				//const float scaled_t = hitRecord.t / 500.f;
+				//finalColor = { scaled_t, scaled_t, scaled_t };
+
+				//hit visualization
 				finalColor = materials[hitRecord.materialIndex]->Shade();
+				//finalColor *= scaled_t;
 			}
 			
 			//Update Color in Buffer

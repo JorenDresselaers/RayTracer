@@ -141,7 +141,7 @@ namespace dae {
 
 		//Plane
 		AddPlane({ 0.f, 200.f, 0.f }, { 0.f, 0.7071f, 0.7071f }, matId_Solid_Yellow);
-		//AddPlane({ 0.f, 200.f, 0.f }, { 0.f, -0.7071f, 0.7071f }, matId_Solid_Green);
+		AddPlane({ 0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, matId_Solid_Green);
 	}
 #pragma endregion
 }
