@@ -44,6 +44,7 @@ void Renderer::Render(Scene* pScene) const
 			float directionY = (1 - 2 * ((py + .5) / m_Height)) * camera.fovRadians;
 
 			Vector3 rayDirection{directionX, directionY, 1};
+			rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
 			Ray hitRay{ camera.origin, rayDirection };
 			HitRecord hitRecord{};
 
