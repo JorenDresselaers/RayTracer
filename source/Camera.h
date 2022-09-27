@@ -12,15 +12,16 @@ namespace dae
 	{
 		Camera() = default;
 
-		Camera(const Vector3& _origin, float _fovAngle):
-			origin{_origin},
-			fovAngle{_fovAngle}
+		Camera(const Vector3& _origin, float _fovAngle) :
+			origin{ _origin }
 		{
+			SetFOV(_fovAngle);
 		}
 
 
 		Vector3 origin{};
 		float fovAngle{90.f};
+		float fovRadians{ tan((90 * TO_RADIANS) / 2) };
 
 		Vector3 forward{Vector3::UnitZ};
 		Vector3 up{Vector3::UnitY};
@@ -31,12 +32,18 @@ namespace dae
 
 		Matrix cameraToWorld{};
 
+		void SetFOV(float newFOV)
+		{
+			fovAngle = newFOV;
+			fovRadians = tan((fovAngle * TO_RADIANS) / 2);
+		}
 
 		Matrix CalculateCameraToWorld()
 		{
+			Matrix matrixToReturn;
 			//todo: W2
-			assert(false && "Not Implemented Yet");
-			return {};
+			//assert(false && "Not Implemented Yet");
+			return matrixToReturn;
 		}
 
 		void Update(Timer* pTimer)
@@ -50,6 +57,9 @@ namespace dae
 			//Mouse Input
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
+			//SDL_GetRelativeMouseMode(); //used for locking the mouse to center of screen
+			//SDL_SetRelativeMouseMode(true);
 
 			//todo: W2
 			//assert(false && "Not Implemented Yet");

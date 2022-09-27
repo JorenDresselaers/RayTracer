@@ -27,10 +27,10 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
-	float aspectRatio = float(m_Width) / float(m_Height);
+	float aspectRatio = float(m_Width) / float(m_Height);	
 
 	//Sphere testSphere{ Vector3{0,0,100}, 50.f, 0 };
-	Plane testPlane{ {0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, 0 };
+	//Plane testPlane{ {0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, 0 };
 
 	for (int px{}; px < m_Width; ++px)
 	{
@@ -40,11 +40,11 @@ void Renderer::Render(Scene* pScene) const
 			gradient += py / static_cast<float>(m_Width);
 			gradient /= 2.0f;
 
-			float directionX = (2 * ((px + 0.5) / m_Width) - 1) * aspectRatio;
-			float directionY = (1 - 2 * ((py + .5) / m_Height));
+			float directionX = (2 * ((px + 0.5) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+			float directionY = (1 - 2 * ((py + .5) / m_Height)) * camera.fovRadians;
 
 			Vector3 rayDirection{directionX, directionY, 1};
-			Ray hitRay{ {0,0,0 }, rayDirection };
+			Ray hitRay{ camera.origin, rayDirection };
 			HitRecord hitRecord{};
 
 			//ColorRGB finalColor{ gradient, gradient, gradient };
