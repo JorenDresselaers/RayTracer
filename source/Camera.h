@@ -23,8 +23,8 @@ namespace dae
 		float fovAngle{90.f};
 		float fovRadians{ tan((90 * TO_RADIANS) / 2) };
 
-		//Vector3 forward{Vector3::UnitZ};
-		Vector3 forward{0.266f, -0.453f, 0.860f}; //hardcoded to check
+		Vector3 forward{Vector3::UnitZ};
+		//Vector3 forward{0.266f, -0.453f, 0.860f}; //hardcoded to check
 		Vector3 up{Vector3::UnitY};
 		Vector3 right{Vector3::UnitX};
 
@@ -41,15 +41,24 @@ namespace dae
 
 		Matrix CalculateCameraToWorld()
 		{
-			right = Vector3::Cross(forward, { 0,1,0 }).Normalized();
+			right = Vector3::Cross(Vector3::UnitY, forward).Normalized();
 			up = Vector3::Cross(forward, right).Normalized();
+
+			//Matrix matrixToReturn
+			//{
+			//	{right.x,	right.y,	right.z,	0},
+			//	{up.x,		up.y,		up.z,		0},
+			//	{forward.x, forward.y,	forward.z,	0},
+			//	{origin.x,	origin.y,	origin.z,	1}
+			//};
+
 
 			Matrix matrixToReturn
 			{
-				{right.x,	right.y,	right.z,	0},
-				{up.x,		up.y,		up.z,		0},
-				{forward.x, forward.y,	forward.z,	0},
-				{origin.x,	origin.y,	origin.z,	1}
+				right,
+				up,
+				forward,
+				origin
 			};
 
 			//todo: W2

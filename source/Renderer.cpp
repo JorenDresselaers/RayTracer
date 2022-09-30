@@ -27,7 +27,7 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
-	float aspectRatio = float(m_Width) / float(m_Height);	
+	float aspectRatio = float(m_Width) / float(m_Height);
 
 	//Sphere testSphere{ Vector3{0,0,100}, 50.f, 0 };
 	//Plane testPlane{ {0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, 0 };
