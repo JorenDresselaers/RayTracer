@@ -52,9 +52,24 @@ namespace dae {
 
 	bool Scene::DoesHit(const Ray& ray) const
 	{
-		//todo W3
-		//Just returns true or false, doesn't need any hit info
-		assert(false && "No Implemented Yet!");
+		//spheres
+		for (const Sphere& currentSphere : m_SphereGeometries)
+		{
+			if (GeometryUtils::HitTest_Sphere(currentSphere, ray))
+			{
+				return true;
+			}
+		}
+
+		//planes
+		for (const Plane& currentPlane : m_PlaneGeometries)
+		{
+			if (GeometryUtils::HitTest_Plane(currentPlane, ray))
+			{
+				return true;
+			}
+		}
+
 		return false;
 	}
 

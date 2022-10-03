@@ -116,30 +116,46 @@ namespace dae {
 
 	Matrix Matrix::CreateRotationX(float pitch)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix matrixToReturn
+		{
+			Vector4{1.f,	0.f,		0.f,			0.f},
+			Vector4{0.f,	cos(pitch),	-sin(pitch),	0.f},
+			Vector4{0.f,	sin(pitch), cos(pitch),		0.f},
+			Vector4{0.f,	0.f,		0.f,			1.f}
+		};
+		return matrixToReturn;
 	}
 
 	Matrix Matrix::CreateRotationY(float yaw)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix matrixToReturn
+		{
+			Vector4{cos(yaw),	0.f, sin(yaw),	0.f},
+			Vector4{0.f,		1.f, 0.f,		0.f},
+			Vector4{-sin(yaw),	0.f, cos(yaw),	0.f},
+			Vector4{0.f,		0.f, 0.f,		1.f}
+		};
+		return matrixToReturn;
 	}
 
 	Matrix Matrix::CreateRotationZ(float roll)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix matrixToReturn
+		{
+			Vector4{cos(roll),		-sin(roll),		0.f,	0.f},
+			Vector4{sin(roll),		cos(roll),		0.f,	0.f},
+			Vector4{0.f,			0.f,			1.f,	0.f},
+			Vector4{0.f,			0.f,			0.f,	1.f}
+		};
+		return matrixToReturn;
 	}
 
 	Matrix Matrix::CreateRotation(const Vector3& r)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix x{ CreateRotationX(r.x) };
+		Matrix y{ CreateRotationY(r.y) };
+		Matrix z{ CreateRotationZ(r.z) };
+		return x * y * z;
 	}
 
 	Matrix Matrix::CreateRotation(float pitch, float yaw, float roll)

@@ -35,11 +35,11 @@ namespace dae
 
 				if (!ignoreHitRecord)
 				{
-					//hitRecord.origin = t * ray.origin * ray.direction;
+					hitRecord.origin = ray.origin + t * ray.direction;
 					hitRecord.t = t;
 					hitRecord.materialIndex = sphere.materialIndex;
 					hitRecord.didHit = true;
-					//hitRecord.normal = sphere.origin
+					hitRecord.normal = Vector3{ hitRecord.origin - sphere.origin }.Normalized();
 				}
 				return true;
 			}
@@ -70,7 +70,7 @@ namespace dae
 					hitRecord.didHit = true;
 					hitRecord.materialIndex = plane.materialIndex;
 					hitRecord.normal = plane.normal;
-					//hitRecord.origin = intersectionPoint;
+					hitRecord.origin = intersectionPoint;
 				}
 				
 				//std::cout << "\n" << t;
@@ -122,9 +122,7 @@ namespace dae
 		//Direction from target to light
 		inline Vector3 GetDirectionToLight(const Light& light, const Vector3 origin)
 		{
-			//todo W3
-			assert(false && "No Implemented Yet!");
-			return {};
+			return Vector3{ light.origin - origin };
 		}
 
 		inline ColorRGB GetRadiance(const Light& light, const Vector3& target)

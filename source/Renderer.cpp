@@ -29,9 +29,6 @@ void Renderer::Render(Scene* pScene) const
 
 	float aspectRatio = float(m_Width) / float(m_Height);
 
-	//Sphere testSphere{ Vector3{0,0,100}, 50.f, 0 };
-	//Plane testPlane{ {0.f, -50.f, 0.f }, { 0.f, 1.f, 0.f }, 0 };
-
 	for (int px{}; px < m_Width; ++px)
 	{
 		for (int py{}; py < m_Height; ++py)
@@ -40,38 +37,36 @@ void Renderer::Render(Scene* pScene) const
 			gradient += py / static_cast<float>(m_Width);
 			gradient /= 2.0f;
 
-			float directionX = (2 * ((px + 0.5) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-			float directionY = (1 - 2 * ((py + .5) / m_Height)) * camera.fovRadians;
+			float directionX = (2 * ((px + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+			float directionY = (1 - 2 * ((py + .5f) / m_Height)) * camera.fovRadians;
 
-			Vector3 rayDirection{directionX, directionY, 1};
+			Vector3 rayDirection{ directionX, directionY, 1 };
 			rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
 			Ray hitRay{ camera.origin, rayDirection };
 			HitRecord hitRecord{};
-
-			//ColorRGB finalColor{ gradient, gradient, gradient };
-			//ColorRGB finalColor{ rayDirection.x, rayDirection.y, rayDirection.z};
-			//Sphere testSphere{ {0,0,100}, 50.f, 0 };
-			//GeometryUtils::HitTest_Sphere(testSphere, hitRay, hitRecord);
-			
-			
-			//GeometryUtils::HitTest_Plane(testPlane, hitRay, hitRecord);
 
 			pScene->GetClosestHit(hitRay, hitRecord);
 
 			ColorRGB finalColor{};
 			if (hitRecord.didHit)
 			{
-				//const float scaled_t = (hitRecord.t - 50.f) / 40.f;
-
-				//t-value visualization
-				//const float scaled_t = hitRecord.t / 500.f;
-				//finalColor = { scaled_t, scaled_t, scaled_t };
-
-				//hit visualization
 				finalColor = materials[hitRecord.materialIndex]->Shade();
-				//finalColor *= scaled_t;
+
+				for (const auto& currentLight : pScene->GetLights())
+				{
+					Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
+					Ray rayToLight{ hitRecord.origin, directionToLight };
+					rayToLight.min = 0.01f;
+					//rayToLight.max = directionToLight.Magnitude();
+					rayToLight.max = camera.testDontNoticeThis;
+
+					if (pScene->DoesHit(rayToLight))
+					{
+						finalColor *= 0.5f;
+					}
+				}
 			}
-			
+
 			//Update Color in Buffer
 			finalColor.MaxToOne();
 
