@@ -73,6 +73,11 @@ namespace dae {
 		return false;
 	}
 
+	//void Scene::MoveLight(Vector3 newOrigin)
+	//{
+	//	m_Lights.front().origin = newOrigin;
+	//}
+
 #pragma region Scene Helpers
 	Sphere* Scene::AddSphere(const Vector3& origin, float radius, unsigned char materialIndex)
 	{
@@ -182,11 +187,11 @@ namespace dae {
 
 		//Spheres
 		AddSphere({ -1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
-		AddSphere({ 0.f, 1.f, 0.f }, .75f, matId_Solid_Blue);
-		AddSphere({ 1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
-		AddSphere({ -1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
-		AddSphere({ 0.f, 3.f, 0.f }, .75f, matId_Solid_Red);
-		AddSphere({ 1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+		//AddSphere({ 0.f, 1.f, 0.f }, .75f, matId_Solid_Blue);
+		//AddSphere({ 1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
+		//AddSphere({ -1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+		//AddSphere({ 0.f, 3.f, 0.f }, .75f, matId_Solid_Red);
+		//AddSphere({ 1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
 
 		//Plane
 		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f}, matId_Solid_Green);

@@ -55,10 +55,10 @@ void Renderer::Render(Scene* pScene) const
 				for (const auto& currentLight : pScene->GetLights())
 				{
 					Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
-					Ray rayToLight{ hitRecord.origin, directionToLight };
+					Ray rayToLight{ hitRecord.origin, directionToLight.Normalized()};
 					rayToLight.min = 0.01f;
 					//rayToLight.max = directionToLight.Magnitude();
-					rayToLight.max = camera.testDontNoticeThis;
+					rayToLight.max = directionToLight.Magnitude();
 
 					if (pScene->DoesHit(rayToLight))
 					{

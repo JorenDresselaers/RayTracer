@@ -96,34 +96,34 @@ namespace dae
 
 			if (pKeyboardState[SDL_SCANCODE_D])
 			{
-				origin.x += movementSpeed * deltaTime * shiftModifier;
+				origin += right.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_A])
 			{
-				origin.x -= movementSpeed * deltaTime * shiftModifier;
+				origin -= right.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_S])
 			{
-				origin.z -= movementSpeed * deltaTime * shiftModifier;
+				origin -= forward.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_W])
 			{
-				origin.z += movementSpeed * deltaTime * shiftModifier;
+				origin += forward.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_LEFT])
 			{
-				if(fovAngle > 2)
-					SetFOV(fovAngle - 1);
+				if(fovAngle > shiftModifier+1)
+					SetFOV(fovAngle - shiftModifier);
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_RIGHT])
 			{
-				if (fovAngle < 178)
-					SetFOV(fovAngle + 1);
+				if (fovAngle < 179 - shiftModifier)
+					SetFOV(fovAngle + shiftModifier);
 			}
 
 

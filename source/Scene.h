@@ -42,6 +42,8 @@ namespace dae
 		const std::vector<Light>& GetLights() const { return m_Lights; }
 		const std::vector<Material*> GetMaterials() const { return m_Materials; }
 
+		//void MoveLight(Vector3 newOrigin);
+
 	protected:
 		std::string	sceneName;
 
