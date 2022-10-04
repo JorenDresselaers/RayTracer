@@ -187,11 +187,11 @@ namespace dae {
 
 		//Spheres
 		AddSphere({ -1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
-		//AddSphere({ 0.f, 1.f, 0.f }, .75f, matId_Solid_Blue);
-		//AddSphere({ 1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
-		//AddSphere({ -1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
-		//AddSphere({ 0.f, 3.f, 0.f }, .75f, matId_Solid_Red);
-		//AddSphere({ 1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+		AddSphere({ 0.f, 1.f, 0.f }, .75f, matId_Solid_Blue);
+		AddSphere({ 1.75f, 1.f, 0.f }, .75f, matId_Solid_Red);
+		AddSphere({ -1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
+		AddSphere({ 0.f, 3.f, 0.f }, .75f, matId_Solid_Red);
+		AddSphere({ 1.75f, 3.f, 0.f }, .75f, matId_Solid_Blue);
 
 		//Plane
 		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f}, matId_Solid_Green);
@@ -202,6 +202,8 @@ namespace dae {
 
 		//Lights
 		AddPointLight({ 0.f, 5.f, -5.f }, 70.f, colors::White);
+		//AddPointLight({ 0.f, 5.f, -10.f }, 70.f, colors::White);
+		//AddPointLight({ 5.f, 5.f, -5.f }, 70.f, colors::White);
 	}
 #pragma endregion
 }

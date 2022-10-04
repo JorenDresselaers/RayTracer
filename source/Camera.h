@@ -6,6 +6,8 @@
 #include "Math.h"
 #include "Timer.h"
 
+#include <iostream>
+
 namespace dae
 {
 	struct Camera
@@ -22,7 +24,7 @@ namespace dae
 		Vector3 origin{};
 		float fovAngle{90.f};
 		float fovRadians{ tan((90 * TO_RADIANS) / 2) };
-		float testDontNoticeThis{ 1.f };
+		float testingVariable{ 1.f };
 
 		Vector3 forward{Vector3::UnitZ};
 		//Vector3 forward{0.266f, -0.453f, 0.860f}; //hardcoded to check
@@ -73,6 +75,9 @@ namespace dae
 
 		void Update(Timer* pTimer)
 		{
+			//SDL_GetRelativeMouseMode(); //used for locking the mouse to center of screen
+			//SDL_SetRelativeMouseMode(SDL_bool(true));
+
 			const float deltaTime = pTimer->GetElapsed();
 			float shiftModifier{ 1.f };
 
@@ -86,12 +91,12 @@ namespace dae
 
 			if (pKeyboardState[SDL_SCANCODE_T])
 			{
-				testDontNoticeThis += 0.1f;
+				testingVariable += 0.1f;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_Y])
 			{
-				testDontNoticeThis -= 0.1f;
+				testingVariable -= 0.1f;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_D])
@@ -116,7 +121,7 @@ namespace dae
 
 			if (pKeyboardState[SDL_SCANCODE_LEFT])
 			{
-				if(fovAngle > shiftModifier+1)
+				if(fovAngle > 1 + shiftModifier)
 					SetFOV(fovAngle - shiftModifier);
 			}
 
@@ -137,6 +142,7 @@ namespace dae
 
 			Matrix finalRotation{};
 
+			// left and right click
 			if (mouseState & SDL_BUTTON_RMASK && mouseState & SDL_BUTTON_LMASK)
 			{
 				if (mouseX != 0)
@@ -152,6 +158,7 @@ namespace dae
 
 			else
 			{
+				// right click
 				if (mouseState & SDL_BUTTON_RMASK)
 				{
 					if (mouseX != 0)
@@ -170,6 +177,7 @@ namespace dae
 					forward.Normalize();
 				}
 
+				// left click
 				if (mouseState & SDL_BUTTON_LMASK)
 				{
 					if (mouseX != 0)
@@ -187,9 +195,6 @@ namespace dae
 					forward.Normalize();
 				}
 			}
-
-			//SDL_GetRelativeMouseMode(); //used for locking the mouse to center of screen
-			//SDL_SetRelativeMouseMode(true);
 		}
 	};
 }

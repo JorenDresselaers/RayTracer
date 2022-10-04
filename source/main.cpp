@@ -25,6 +25,7 @@ int main(int argc, char* args[])
 	//Unreferenced parameters
 	(void)argc;
 	(void)args;
+	
 
 	//Create window + surfaces
 	SDL_Init(SDL_INIT_VIDEO);
@@ -67,6 +68,8 @@ int main(int argc, char* args[])
 			case SDL_KEYUP:
 				if(e.key.keysym.scancode == SDL_SCANCODE_X)
 					takeScreenshot = true;
+				if(e.key.keysym.scancode == SDL_SCANCODE_T)
+					pRenderer->ToggleShadows();
 				break;
 			}
 		}

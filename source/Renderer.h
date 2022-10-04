@@ -22,8 +22,19 @@ namespace dae
 
 		void Render(Scene* pScene) const;
 		bool SaveBufferToImage() const;
+		void ToggleShadows()
+		{
+			m_ShadowsEnabled = !m_ShadowsEnabled;
+		}
 
 	private:
+		enum class LightingMode
+		{
+
+		};
+
+		bool m_ShadowsEnabled{ true };
+
 		SDL_Window* m_pWindow{};
 
 		SDL_Surface* m_pBuffer{};

@@ -17,31 +17,34 @@ namespace dae
 			//assert(false && "No Implemented Yet!");
 			const float a{ float(Vector3::Dot(ray.direction, ray.direction)) };
 			const float b{ float(Vector3::Dot(2*ray.direction, ray.origin - sphere.origin)) };
-			const float c{ float(Vector3::Dot(ray.origin - sphere.origin, ray.origin - sphere.origin) - pow(sphere.radius, 2)) };
+			const float c{ float(Vector3::Dot(ray.origin - sphere.origin, ray.origin - sphere.origin) - sphere.radius * sphere.radius) };
 			const float discriminant{ b*b - 4 * a * c };
 
 			//const float tMax{ (-b + sqrt(discriminant)) / (2 * a) };
-			const float t{ (-b - sqrt(discriminant)) / (2 * a) };
 
 			if (discriminant < 0.f)
 			{
 				return false;
 			}
 
-			if (t > ray.min && t < ray.max)
+			else
 			{
-				//const float p1{ (-b + sqrt(discriminant)) / (2 * a) };
-				//const float p2{ (-b - sqrt(discriminant)) / (2 * a) };
-
-				if (!ignoreHitRecord)
+				const float t{ (-b - sqrt(discriminant)) / (2 * a) };
+				if (t > ray.min && t < ray.max)
 				{
-					hitRecord.origin = ray.origin + t * ray.direction;
-					hitRecord.t = t;
-					hitRecord.materialIndex = sphere.materialIndex;
-					hitRecord.didHit = true;
-					hitRecord.normal = Vector3{ hitRecord.origin - sphere.origin }.Normalized();
+					//const float p1{ (-b + sqrt(discriminant)) / (2 * a) };
+					//const float p2{ (-b - sqrt(discriminant)) / (2 * a) };
+
+					if (!ignoreHitRecord)
+					{
+						hitRecord.origin = ray.origin + t * ray.direction;
+						hitRecord.t = t;
+						hitRecord.materialIndex = sphere.materialIndex;
+						hitRecord.didHit = true;
+						hitRecord.normal = Vector3{ hitRecord.origin - sphere.origin }.Normalized();
+					}
+					return true;
 				}
-				return true;
 			}
 
 			//const float result{ (-b + sqrt(discriminant)) / (2 * a) };
