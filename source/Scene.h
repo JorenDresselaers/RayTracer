@@ -42,10 +42,18 @@ namespace dae
 		const std::vector<Light>& GetLights() const { return m_Lights; }
 		const std::vector<Material*> GetMaterials() const { return m_Materials; }
 
-		//void MoveLight(Vector3 newOrigin);
+		void MoveLight(Vector3 newOrigin);
+		void AddSphereOnClick(Vector3 origin);
+		void RemoveSphereOnClick(Vector3 origin);
+		void DeleteBalls();
+		void ToggleFunkyMode()
+		{
+			m_FunkyMode = !m_FunkyMode;
+		}
 
 	protected:
 		std::string	sceneName;
+		bool m_FunkyMode{ false };
 
 		std::vector<Plane> m_PlaneGeometries{};
 		std::vector<Sphere> m_SphereGeometries{};
@@ -92,6 +100,22 @@ namespace dae
 		Scene_W2(Scene_W2&&) noexcept = delete;
 		Scene_W2& operator=(const Scene_W2&) = delete;
 		Scene_W2& operator=(Scene_W2&&) noexcept = delete;
+
+		void Initialize() override;
+	};
+
+	//+++++++++++++++++++++++++++++++++++++++++
+	//WEEK 3 Test Scene
+	class Scene_W3 final : public Scene
+	{
+	public:
+		Scene_W3() = default;
+		~Scene_W3() override = default;
+
+		Scene_W3(const Scene_W3&) = delete;
+		Scene_W3(Scene_W3&&) noexcept = delete;
+		Scene_W3& operator=(const Scene_W3&) = delete;
+		Scene_W3& operator=(Scene_W3&&) noexcept = delete;
 
 		void Initialize() override;
 	};

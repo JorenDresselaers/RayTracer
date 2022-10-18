@@ -73,10 +73,36 @@ namespace dae {
 		return false;
 	}
 
-	//void Scene::MoveLight(Vector3 newOrigin)
-	//{
-	//	m_Lights.front().origin = newOrigin;
-	//}
+	void Scene::DeleteBalls()
+	{
+		m_SphereGeometries.clear();
+	}
+
+	void Scene::RemoveSphereOnClick(Vector3 origin)
+	{
+		for (size_t currentSphere{ 0 }; currentSphere < m_SphereGeometries.size(); ++currentSphere)
+		{
+			Vector3 currentOrigin = m_SphereGeometries.at(currentSphere).origin;
+			if (currentOrigin.x == origin.x &&
+				currentOrigin.y == origin.y &&
+				currentOrigin.z == origin.z)
+			{
+				std::swap(m_SphereGeometries.at(currentSphere), m_SphereGeometries.back());
+				m_SphereGeometries.pop_back();
+			}
+		}
+	}
+
+	void Scene::MoveLight(Vector3 newOrigin)
+	{
+		m_Lights.front().origin = newOrigin;
+	}
+
+	void Scene::AddSphereOnClick(Vector3 origin)
+	{
+		unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
+		AddSphere(origin, 1.f, randomMaterial);
+	}
 
 #pragma region Scene Helpers
 	Sphere* Scene::AddSphere(const Vector3& origin, float radius, unsigned char materialIndex)
@@ -206,4 +232,61 @@ namespace dae {
 		//AddPointLight({ 5.f, 5.f, -5.f }, 70.f, colors::White);
 	}
 #pragma endregion
+	void Scene_W3::Initialize()
+	{
+		//m_Camera.origin = { 0.f, 3.f, -9.f };
+		m_Camera.SetFOV(45.f);
+
+		/*
+		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, 1.f));
+		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, .6f));
+		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, 1.f, .1f));
+		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, 1.f));
+		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, .6f));
+		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, .1f));
+
+		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
+
+		//Spheres
+		AddSphere({ -1.75f, 1.f, 0.f }, .75f, matCT_GrayRoughMetal);
+		AddSphere({ 0.f, 1.f, 0.f }, .75f, matCT_GrayMediumMetal);
+		AddSphere({ 1.75f, 1.f, 0.f }, .75f, matCT_GraySmoothMetal);
+		AddSphere({ -1.75f, 3.f, 0.f }, .75f, matCT_GrayRoughPlastic);
+		AddSphere({ 0.f, 3.f, 0.f }, .75f, matCT_GrayMediumPlastic);
+		AddSphere({ 1.75f, 3.f, 0.f }, .75f, matCT_GraySmoothPlastic);
+
+		//Plane
+		AddPlane({ 0.f, 0.f, 10.f }, { 0.f, 0.f, -1.f }, matLambert_GrayBlue); //BACK
+		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_GrayBlue); //BOTTOM
+		AddPlane({ 0.f, 10.f, 0.f }, { 0.f, -1.f, 0.f }, matLambert_GrayBlue); //TOP
+		AddPlane({ 5.f, 0.f, 0.f }, { -1.f, 0.f, 0.f }, matLambert_GrayBlue); //RIGHT
+		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
+
+		//Lights
+		AddPointLight({ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //BACKLIGHT
+		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
+		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
+		*/
+
+		m_Camera.origin = { 0.f, 1.f, -5.f };
+
+		const auto matLambert_Red = AddMaterial(new Material_Lambert({ colors::Red }, 1.f));;
+		const auto matLambert_Blue = AddMaterial(new Material_Lambert({ colors::Blue }, 1.f));
+		const auto matLambert_Yellow = AddMaterial(new Material_Lambert({ colors::Yellow }, 1.f));
+		const auto matLambert_White = AddMaterial(new Material_Lambert({ colors::White }, 1.f));
+		const auto matLambert_Magenta = AddMaterial(new Material_Lambert({ colors::Magenta }, 1.f));
+		const auto matLambert_Cyan = AddMaterial(new Material_Lambert({ colors::Cyan }, 1.f));
+		const auto matLambert_Gray = AddMaterial(new Material_Lambert({ colors::Gray }, 1.f));
+		const auto matLambert_Green = AddMaterial(new Material_Lambert({ colors::Green }, 1.f));
+
+		AddSphere({ -.75f, 1.f, 0.f }, 1.f, matLambert_Red);
+		AddSphere({ .75f, 1.f, 0.f }, 1.f, matLambert_Blue);
+		//AddSphere({ 0.f, 5.f, 5.f }, .5f, matLambert_White);
+		//AddSphere({ 0.f, 2.5f, -5.f }, 5.f, matLambert_White);
+
+		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_Yellow);
+
+		AddPointLight({ 0.f, 5.f, 5.f }, 25.f, colors::White);
+		AddPointLight({ 0.f, 2.5f, -5.f }, 25.f, colors::White);
+	}
 }

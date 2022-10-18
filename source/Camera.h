@@ -27,7 +27,6 @@ namespace dae
 		float testingVariable{ 1.f };
 
 		Vector3 forward{Vector3::UnitZ};
-		//Vector3 forward{0.266f, -0.453f, 0.860f}; //hardcoded to check
 		Vector3 up{Vector3::UnitY};
 		Vector3 right{Vector3::UnitX};
 
@@ -68,8 +67,6 @@ namespace dae
 				origin
 			};
 
-			//todo: W2
-			//assert(false && "Not Implemented Yet");
 			return matrixToReturn;
 		}
 
@@ -117,6 +114,16 @@ namespace dae
 			if (pKeyboardState[SDL_SCANCODE_W])
 			{
 				origin += forward.Normalized() * movementSpeed * deltaTime * shiftModifier;
+			}
+
+			if (pKeyboardState[SDL_SCANCODE_Q])
+			{
+				origin -= up.Normalized() * movementSpeed * deltaTime * shiftModifier;
+			}
+
+			if (pKeyboardState[SDL_SCANCODE_E])
+			{
+				origin += up.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
 			if (pKeyboardState[SDL_SCANCODE_LEFT])

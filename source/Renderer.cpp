@@ -33,21 +33,7 @@ void Renderer::Render(Scene* pScene) const
 
 	float aspectRatio = float(m_Width) / float(m_Height);
 
-	//pScene->MoveLight();
-	//int amountOfThreads{ m_Width/16 };
-	//std::vector<std::thread> threadPool;
-	//
-	//std::mutex* pMutex = new std::mutex;
-	//
-	//for (int threadX{1}; threadX < amountOfThreads; ++threadX)
-	//{
-	//	int threadPoolSize{ int(threadPool.size()) };
-	//	//std::cout << "\nthreadX: " << threadX;
-	//
-	//	std::thread newThread = std::thread{ [this, aspectRatio, &camera, pScene, threadPoolSize, amountOfThreads, threadX, materials, pMutex]()
-	//{
-	//	for (int px{threadPoolSize * m_Width / threadX }; px < threadPoolSize + m_Width / threadX; ++px)
-	//	{
+	if(m_FunkyMode) pScene->MoveLight(camera.origin + camera.forward*5.f);
 
 #pragma omp parallel for
 		for (int px{}; px < m_Width; ++px)
@@ -71,7 +57,19 @@ void Renderer::Render(Scene* pScene) const
 				ColorRGB finalColor{};
 				if (hitRecord.didHit)
 				{
-					finalColor = materials[hitRecord.materialIndex]->Shade();
+					//finalColor = materials[hitRecord.materialIndex]->Shade();
+
+					for (const auto& currentLight : pScene->GetLights())
+					{
+						Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
+						float dot{ Vector3::Dot(hitRecord.normal, directionToLight.Normalized()) };
+
+						if (dot > 0)
+						{
+							finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * dot * 
+								materials[hitRecord.materialIndex]->Shade();
+						}
+					}
 
 					if (m_ShadowsEnabled)
 					{
@@ -81,7 +79,7 @@ void Renderer::Render(Scene* pScene) const
 							Ray rayToLight{ hitRecord.origin, directionToLight.Normalized() };
 							rayToLight.min = 0.01f;
 							rayToLight.max = directionToLight.Magnitude();
-
+					
 							if (pScene->DoesHit(rayToLight))
 							{
 								finalColor *= 0.5f;
@@ -93,26 +91,12 @@ void Renderer::Render(Scene* pScene) const
 				//Update Color in Buffer
 				finalColor.MaxToOne();
 
-				//pMutex->lock();
 				m_pBufferPixels[px + (py * m_Width)] = SDL_MapRGB(m_pBuffer->format,
 					static_cast<uint8_t>(finalColor.r * 255),
 					static_cast<uint8_t>(finalColor.g * 255),
 					static_cast<uint8_t>(finalColor.b * 255));
-				//pMutex->unlock();
-
 			}
-	//		}
 		}
-	//	};
-	//	threadPool.push_back(move(newThread));
-	//}
-	
-	//for (size_t currentThread{ 0 }; currentThread < threadPool.size(); ++currentThread)
-	//{
-	//	threadPool.at(currentThread).join();
-	//}
-	//
-	//delete pMutex;
 
 	//@END
 	//Update SDL Surface
@@ -122,4 +106,72 @@ void Renderer::Render(Scene* pScene) const
 bool Renderer::SaveBufferToImage() const
 {
 	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
+}
+
+void dae::Renderer::CycleLightingMode()
+{
+	switch (m_CurrentLightingMode)
+	{
+	case dae::Renderer::LightingMode::ObservedArea:
+		m_CurrentLightingMode = LightingMode::Radiance;
+		break;
+	case dae::Renderer::LightingMode::Radiance:
+		m_CurrentLightingMode = LightingMode::BRDF;
+		break;
+	case dae::Renderer::LightingMode::BRDF:
+		m_CurrentLightingMode = LightingMode::Combined;
+		break;
+	case dae::Renderer::LightingMode::Combined:
+		m_CurrentLightingMode = LightingMode::ObservedArea;
+		break;
+	default:
+		break;
+	}
+}
+
+//test
+void dae::Renderer::AddBall(float x, float y, Scene* pScene)
+{
+	if (!m_FunkyMode) return;
+
+	Camera& camera = pScene->GetCamera();
+	float aspectRatio = float(m_Width) / float(m_Height);
+
+	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
+
+	Vector3 rayDirection{ directionX, directionY, 1 };
+	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
+	Ray hitRay{ camera.origin, rayDirection };
+	HitRecord hitRecord{};
+
+	pScene->GetClosestHit(hitRay, hitRecord);
+
+	if (hitRecord.didHit)
+	{
+		pScene->AddSphereOnClick(hitRecord.origin);
+	}
+}
+
+void dae::Renderer::RemoveBall(float x, float y, Scene* pScene)
+{
+	if (!m_FunkyMode) return;
+
+	Camera& camera = pScene->GetCamera();
+	float aspectRatio = float(m_Width) / float(m_Height);
+
+	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
+
+	Vector3 rayDirection{ directionX, directionY, 1 };
+	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
+	Ray hitRay{ camera.origin, rayDirection };
+	HitRecord hitRecord{};
+
+	pScene->GetClosestHit(hitRay, hitRecord);
+
+	if (hitRecord.didHit)
+	{
+		pScene->RemoveSphereOnClick(hitRecord.origin);
+	}
 }

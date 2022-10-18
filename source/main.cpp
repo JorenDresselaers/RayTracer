@@ -46,7 +46,7 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
-	const auto pScene = new Scene_W2();
+	const auto pScene = new Scene_W3();
 	pScene->Initialize();
 
 	//Start loop
@@ -58,6 +58,8 @@ int main(int argc, char* args[])
 	{
 		//--------- Get input events ---------
 		SDL_Event e;
+		int mouseX{}, mouseY{};
+		const uint32_t mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 		while (SDL_PollEvent(&e))
 		{
 			switch (e.type)
@@ -68,10 +70,29 @@ int main(int argc, char* args[])
 			case SDL_KEYUP:
 				if(e.key.keysym.scancode == SDL_SCANCODE_X)
 					takeScreenshot = true;
-				if(e.key.keysym.scancode == SDL_SCANCODE_T)
+				if(e.key.keysym.scancode == SDL_SCANCODE_F2)
 					pRenderer->ToggleShadows();
+				if(e.key.keysym.scancode == SDL_SCANCODE_F3)
+					pRenderer->CycleLightingMode();
+				if(e.key.keysym.scancode == SDL_SCANCODE_F4)
+					pScene->DeleteBalls();
+				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
+				{
+					pScene->ToggleFunkyMode();
+					pRenderer->ToggleFunkyMode();
+				}
 				break;
 			}
+		}
+
+		if (mouseState & SDL_BUTTON_LMASK)
+		{
+			pRenderer->AddBall(mouseX, mouseY, pScene);
+		}
+
+		if (mouseState & SDL_BUTTON_RMASK)
+		{
+			pRenderer->RemoveBall(mouseX, mouseY, pScene);
 		}
 
 		//--------- Update ---------
