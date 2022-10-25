@@ -44,8 +44,8 @@ void Renderer::Render(Scene* pScene) const
 				gradient += py / static_cast<float>(m_Width);
 				gradient /= 2.0f;
 
-				float directionX = (2 * ((px + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-				float directionY = (1 - 2 * ((py + .5f) / m_Height)) * camera.fovRadians;
+				const float directionX = (2 * ((px + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+				const float directionY = (1 - 2 * ((py + .5f) / m_Height)) * camera.fovRadians;
 
 				Vector3 rayDirection{ directionX, directionY, 1 };
 				rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
@@ -62,30 +62,43 @@ void Renderer::Render(Scene* pScene) const
 					for (const auto& currentLight : pScene->GetLights())
 					{
 						Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
-						float dot{ Vector3::Dot(hitRecord.normal, directionToLight.Normalized()) };
+						const float lambertCos{ Vector3::Dot(hitRecord.normal, directionToLight.Normalized()) };
 
-						if (dot > 0)
+						if (lambertCos > 0)
 						{
-							finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * dot * 
+							finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * lambertCos *
 								materials[hitRecord.materialIndex]->Shade();
 						}
-					}
 
-					if (m_ShadowsEnabled)
-					{
-						for (const auto& currentLight : pScene->GetLights())
+						if (m_ShadowsEnabled)
 						{
 							Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
 							Ray rayToLight{ hitRecord.origin, directionToLight.Normalized() };
 							rayToLight.min = 0.01f;
 							rayToLight.max = directionToLight.Magnitude();
-					
+
 							if (pScene->DoesHit(rayToLight))
 							{
 								finalColor *= 0.5f;
 							}
 						}
 					}
+
+					//if (m_ShadowsEnabled)
+					//{
+					//	for (const auto& currentLight : pScene->GetLights())
+					//	{
+					//		Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
+					//		Ray rayToLight{ hitRecord.origin, directionToLight.Normalized() };
+					//		rayToLight.min = 0.01f;
+					//		rayToLight.max = directionToLight.Magnitude();
+					//
+					//		if (pScene->DoesHit(rayToLight))
+					//		{
+					//			finalColor *= 0.5f;
+					//		}
+					//	}
+					//}
 				}
 
 				//Update Color in Buffer

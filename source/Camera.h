@@ -144,8 +144,8 @@ namespace dae
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
-			float yawAngle{};
-			float pitchAngle{};
+			//float yawAngle{};
+			//float pitchAngle{};
 
 			Matrix finalRotation{};
 
@@ -170,18 +170,18 @@ namespace dae
 				{
 					if (mouseX != 0)
 					{
-						yawAngle -= mouseX * deltaTime * mouseSensitivity;
+						totalYaw -= mouseX * deltaTime * mouseSensitivity;
 					}
 
 					if (mouseY != 0)
 					{
-						pitchAngle -= mouseY * deltaTime * mouseSensitivity;
+						totalPitch -= mouseY * deltaTime * mouseSensitivity;
 					}
 
-					finalRotation = Matrix::CreateRotation(pitchAngle, yawAngle, 0);
-
-					forward = finalRotation.TransformVector(forward);
-					forward.Normalize();
+					//finalRotation = Matrix::CreateRotation(totalPitch, totalYaw, 0);
+					//
+					//forward = finalRotation.TransformVector(Vector3::UnitZ);
+					//forward.Normalize();
 				}
 
 				// left click
@@ -189,18 +189,18 @@ namespace dae
 				{
 					if (mouseX != 0)
 					{
-						yawAngle -= mouseX * deltaTime * mouseSensitivity*0.1f;
+						totalYaw -= mouseX * deltaTime * mouseSensitivity*0.1f;
 					}
 
 					if (mouseY != 0)
 					{
 						origin -= mouseY * deltaTime * mouseSensitivity * forward;
 					}
-					finalRotation = Matrix::CreateRotation(0, yawAngle, 0);
-
-					forward = finalRotation.TransformVector(forward);
-					forward.Normalize();
 				}
+				finalRotation = Matrix::CreateRotation(totalPitch, totalYaw, 0);
+
+				forward = finalRotation.TransformVector(Vector3::UnitZ);
+				forward.Normalize();
 			}
 		}
 	};
