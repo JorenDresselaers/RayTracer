@@ -144,7 +144,7 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, f
 				continue;
 	
 			finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * lambertCos *
-				materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), rayDirection);
+				materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
 		}
 	}
 	
@@ -178,7 +178,25 @@ void dae::Renderer::CycleLightingMode()
 	}
 }
 
-//test
+#pragma region Level Editing
+void dae::Renderer::SelectBall(float x, float y, Scene* pScene)
+{
+	if (!m_FunkyMode) return;
+
+	Camera& camera = pScene->GetCamera();
+	float aspectRatio = float(m_Width) / float(m_Height);
+
+	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
+
+	Vector3 rayDirection{ directionX, directionY, 1 };
+	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
+	Ray hitRay{ camera.origin, rayDirection };
+	HitRecord hitRecord{};
+
+	pScene->SelectSphere(hitRay);
+}
+
 void dae::Renderer::AddBall(float x, float y, Scene* pScene)
 {
 	if (!m_FunkyMode) return;
@@ -195,7 +213,6 @@ void dae::Renderer::AddBall(float x, float y, Scene* pScene)
 	HitRecord hitRecord{};
 
 	pScene->GetClosestHit(hitRay, hitRecord);
-
 	if (hitRecord.didHit)
 	{
 		pScene->AddSphereOnClick(hitRecord.origin);
@@ -224,3 +241,4 @@ void dae::Renderer::RemoveBall(float x, float y, Scene* pScene)
 		pScene->RemoveSphereOnClick(hitRecord.origin);
 	}
 }
+#pragma endregion

@@ -64,8 +64,8 @@ namespace dae
 		static float NormalDistribution_GGX(const Vector3& n, const Vector3& h, float roughness)
 		{
 			const float squared{ Square(Square(roughness)) };
-			const float dotSquared{ Vector3::Dot(n, h) * Vector3::Dot(n, h) };
-			const float toReturn{ squared / PI * Square(dotSquared * (squared - 1) + 1) };
+			const float dotSquared{ Square(Vector3::Dot(n, h)) };
+			const float toReturn{ squared / (PI * Square(dotSquared * (squared - 1) + 1)) };
 			return toReturn;
 		}
 
@@ -79,8 +79,10 @@ namespace dae
 		 */
 		static float GeometryFunction_SchlickGGX(const Vector3& n, const Vector3& v, float roughness)
 		{
-			const float k{ ((roughness * roughness + 1) * (roughness * roughness + 1)) / 8 };
-			return (Vector3::Dot(n, v)/ Vector3::Dot(n, v) * (1-k) + k);
+			const float a{ Square(roughness) };
+			const float k{ Square(a + 1) / 8 };
+			const float dot{ Vector3::Dot(n, v) };
+			return dot / (dot * (1-k) + k);
 		}
 
 		/**

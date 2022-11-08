@@ -48,6 +48,16 @@ namespace dae {
 				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
 			}
 		}
+
+		//triangles
+		for (const Triangle& currentTriangle : m_TriangleGeometries)
+		{
+			HitRecord tempRecord;
+			if (GeometryUtils::HitTest_Triangle(currentTriangle, ray, tempRecord))
+			{
+				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
+			}
+		}
 	}
 
 	bool Scene::DoesHit(const Ray& ray) const
@@ -70,12 +80,94 @@ namespace dae {
 			}
 		}
 
+		for (const Triangle& currentTriangle : m_TriangleGeometries)
+		{
+			if (GeometryUtils::HitTest_Triangle(currentTriangle, ray))
+			{
+				return true;
+			}
+		}
+
 		return false;
 	}
 
+#pragma region Level Editing
 	void Scene::DeleteBalls()
 	{
 		m_SphereGeometries.clear();
+	}
+
+	void Scene::SelectSphere(const Ray& ray)
+	{
+		ResetSelectedMaterial();
+		m_SelectedGeometry = SelectedGeometry::Null;
+		HitRecord tempRecord, closestHit;
+		for (int currentSphere{0}; currentSphere < m_SphereGeometries.size(); ++currentSphere)
+		{
+			if (GeometryUtils::HitTest_Sphere(m_SphereGeometries.at(currentSphere), ray))
+			{
+				unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
+				m_SelectedSphereIndex = currentSphere;
+				m_OriginalMaterial = m_SphereGeometries.at(currentSphere).materialIndex;
+				m_SphereGeometries.at(currentSphere).materialIndex = randomMaterial;
+				m_SelectedGeometry = SelectedGeometry::Sphere;
+				return;
+			}
+		}
+
+		if (m_SelectedGeometry != SelectedGeometry::Null) return;
+
+		int closestPlaneIndex{ -1 };
+		for (int currentPlane{0}; currentPlane < m_PlaneGeometries.size(); ++currentPlane)
+		{
+			if (GeometryUtils::HitTest_Plane(m_PlaneGeometries.at(currentPlane), ray, tempRecord))
+			{
+				if (tempRecord.t < closestHit.t)
+				{
+					closestHit = tempRecord;
+					closestPlaneIndex = currentPlane;
+				}
+			}
+		}
+
+		if (closestPlaneIndex != -1)
+		{
+			unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
+			m_SelectedSphereIndex = closestPlaneIndex;
+			m_OriginalMaterial = m_PlaneGeometries.at(closestPlaneIndex).materialIndex;
+			m_PlaneGeometries.at(closestPlaneIndex).materialIndex = randomMaterial;
+			m_SelectedGeometry = SelectedGeometry::Plane;
+		}
+	}
+
+	void Scene::MoveSelectedBall(const Vector3& offset)
+	{
+		switch (m_SelectedGeometry)
+		{
+		case dae::Scene::SelectedGeometry::Sphere:
+			m_SphereGeometries.at(m_SelectedSphereIndex).origin += offset;
+			break;
+		case dae::Scene::SelectedGeometry::Plane:
+			m_PlaneGeometries.at(m_SelectedSphereIndex).origin += offset;
+			break;
+		default:
+			break;
+		}
+	}
+
+	void Scene::ResetSelectedMaterial()
+	{
+		switch (m_SelectedGeometry)
+		{
+		case dae::Scene::SelectedGeometry::Sphere:
+			if (m_OriginalMaterial != -1) m_SphereGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
+			break;
+		case dae::Scene::SelectedGeometry::Plane:
+			if (m_OriginalMaterial != -1) m_PlaneGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
+			break;
+		default:
+			break;
+		}
 	}
 
 	void Scene::RemoveSphereOnClick(Vector3 origin)
@@ -103,6 +195,7 @@ namespace dae {
 		unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
 		AddSphere(origin, 1.f, randomMaterial);
 	}
+#pragma endregion
 
 #pragma region Scene Helpers
 	Sphere* Scene::AddSphere(const Vector3& origin, float radius, unsigned char materialIndex)
@@ -238,12 +331,12 @@ namespace dae {
 		m_Camera.SetFOV(45.f);
 
 		
-		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, 1.f));
-		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, 1.f, .6f));
-		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, 1.f, .1f));
-		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, 1.f));
-		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, .6f));
-		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, .0f, .1f));
+		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, 1.f));
+		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, .6f));
+		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, true, .1f));
+		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, 1.f));
+		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .6f));
+		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .1f));
 
 		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
 
@@ -296,5 +389,61 @@ namespace dae {
 		//
 		//AddPointLight({ 0.f, 5.f, 5.f }, 25.f, colors::White);
 		//AddPointLight({ 0.f, 2.5f, -5.f }, 25.f, colors::White);
+	}
+	void Scene_W4::Initialize()
+	{
+		m_Camera.origin = { 0.f, 1.f, -5.f };
+		m_Camera.SetFOV(45.f);
+		m_Camera.totalYaw = 0;
+
+
+		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, 1.f));
+		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, .6f));
+		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, true, .1f));
+		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, 1.f));
+		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .6f));
+		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .1f));
+
+		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
+
+		const auto matLambert_Red = AddMaterial(new Material_Lambert({ colors::Red }, 1.f));;
+		const auto matLambert_Blue = AddMaterial(new Material_Lambert({ colors::Blue }, 1.f));
+		const auto matLambert_Yellow = AddMaterial(new Material_Lambert({ colors::Yellow }, 1.f));
+		const auto matLambert_White = AddMaterial(new Material_Lambert({ colors::White }, 1.f));
+		const auto matLambert_Magenta = AddMaterial(new Material_Lambert({ colors::Magenta }, 1.f));
+		const auto matLambert_Cyan = AddMaterial(new Material_Lambert({ colors::Cyan }, 1.f));
+		const auto matLambert_Gray = AddMaterial(new Material_Lambert({ colors::Gray }, 1.f));
+		const auto matLambert_Green = AddMaterial(new Material_Lambert({ colors::Green }, 1.f));
+		const auto matLambertPhong_Red = AddMaterial(new Material_LambertPhong({ colors::Red }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Blue = AddMaterial(new Material_LambertPhong({ colors::Blue }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Yellow = AddMaterial(new Material_LambertPhong({ colors::Yellow }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_White = AddMaterial(new Material_LambertPhong({ colors::White }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Magenta = AddMaterial(new Material_LambertPhong({ colors::Magenta }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Cyan = AddMaterial(new Material_LambertPhong({ colors::Cyan }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Gray = AddMaterial(new Material_LambertPhong({ colors::Gray }, 1.f, 1.f, 60.f));
+		const auto matLambertPhong_Green = AddMaterial(new Material_LambertPhong({ colors::Green }, 1.f, 1.f, 60.f));
+
+
+		auto triangle = Triangle{ {-.75f, .5f, .0f}, {-.75f, 2.f, .0f}, {.75f, .5f, .0f} };
+		triangle.cullMode = TriangleCullMode::NoCulling;
+		triangle.materialIndex = matLambert_White;
+
+		m_TriangleGeometries.emplace_back(triangle);
+
+		//AddSphere({ -.75f, .5f, .0f }, 0.1f, matLambert_Red);
+		//AddSphere({ -.75f, 2.f, .0f }, 0.1f, matLambert_Blue);
+		//AddSphere({ .75f, .5f, .0f }, 0.1f, matLambert_Green);
+
+		//Plane
+		AddPlane({ 0.f, 0.f, 10.f }, { 0.f, 0.f, -1.f }, matLambert_GrayBlue); //BACK
+		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_GrayBlue); //BOTTOM
+		AddPlane({ 0.f, 10.f, 0.f }, { 0.f, -1.f, 0.f }, matLambert_GrayBlue); //TOP
+		AddPlane({ 5.f, 0.f, 0.f }, { -1.f, 0.f, 0.f }, matLambert_GrayBlue); //RIGHT
+		AddPlane({ -5.f, 0.f, 0.f }, { 1.f, 0.f, 0.f }, matLambert_GrayBlue); //LEFT
+
+		//Lights
+		AddPointLight({ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //BACKLIGHT
+		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
+		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
 	}
 }

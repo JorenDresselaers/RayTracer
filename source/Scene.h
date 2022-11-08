@@ -48,6 +48,7 @@ namespace dae
 		void DeleteBalls();
 		void ToggleFunkyMode()
 		{
+			ResetSelectedMaterial();
 			m_FunkyMode = !m_FunkyMode;
 		}
 		bool GetFunkyMode()
@@ -55,13 +56,29 @@ namespace dae
 			return m_FunkyMode;
 		}
 
+		void SelectSphere(const Ray& ray);
+		void MoveSelectedBall(const Vector3& offset);
+		void ResetSelectedMaterial();
+
 	protected:
 		std::string	sceneName;
+
+		enum class SelectedGeometry
+		{
+			Null,
+			Sphere,
+			Plane
+		};
 		bool m_FunkyMode{ false };
+		SelectedGeometry m_SelectedGeometry{SelectedGeometry::Null};
+		int m_SelectedSphereIndex{ -1 };
+		int m_OriginalMaterial{ -1 };
+
 
 		std::vector<Plane> m_PlaneGeometries{};
 		std::vector<Sphere> m_SphereGeometries{};
 		std::vector<TriangleMesh> m_TriangleMeshGeometries{};
+		std::vector<Triangle> m_TriangleGeometries{}; //temporary
 		std::vector<Light> m_Lights{};
 		std::vector<Material*> m_Materials{};
 
@@ -120,6 +137,22 @@ namespace dae
 		Scene_W3(Scene_W3&&) noexcept = delete;
 		Scene_W3& operator=(const Scene_W3&) = delete;
 		Scene_W3& operator=(Scene_W3&&) noexcept = delete;
+
+		void Initialize() override;
+	};
+
+	//+++++++++++++++++++++++++++++++++++++++++
+	//WEEK 3 Test Scene
+	class Scene_W4 final : public Scene
+	{
+	public:
+		Scene_W4() = default;
+		~Scene_W4() override = default;
+
+		Scene_W4(const Scene_W4&) = delete;
+		Scene_W4(Scene_W4&&) noexcept = delete;
+		Scene_W4& operator=(const Scene_W4&) = delete;
+		Scene_W4& operator=(Scene_W4&&) noexcept = delete;
 
 		void Initialize() override;
 	};

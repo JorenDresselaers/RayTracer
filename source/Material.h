@@ -99,7 +99,7 @@ namespace dae
 	class Material_CookTorrence final : public Material
 	{
 	public:
-		Material_CookTorrence(const ColorRGB& albedo, float metalness, float roughness):
+		Material_CookTorrence(const ColorRGB& albedo, bool metalness, float roughness):
 			m_Albedo(albedo), m_Metalness(metalness), m_Roughness(roughness)
 		{
 		}
@@ -108,28 +108,28 @@ namespace dae
 		{
 			const Vector3 halfVector{ ((v + l) / (l + v).Magnitude()).Normalized()};
 			const Vector3 normal{ hitRecord.normal };
-			const ColorRGB f0 = (m_Metalness == .0f) ? ColorRGB(0.04f, 0.04f, 0.04f) : m_Albedo;
+			const ColorRGB f0 = (!m_Metalness) ? ColorRGB(0.04f, 0.04f, 0.04f) : m_Albedo;
 
 			const ColorRGB f = BRDF::FresnelFunction_Schlick(halfVector, v, f0);
 			const float d = BRDF::NormalDistribution_GGX(normal, halfVector, m_Roughness);
-			const float g = BRDF::GeometryFunction_SchlickGGX(normal, v, m_Roughness);
+			const float g = BRDF::GeometryFunction_Smith(normal, v, l, m_Roughness);
 
 			const float dots{ 4 * (Vector3::Dot(v, normal) * Vector3::Dot(l, normal)) };
 			const auto specular{ (d * f * g) * (1 / dots) };
 			ColorRGB kd{ 0.f, 0.f, 0.f };
-			if (m_Metalness == 1.0f)
+			if (!m_Metalness)
 			{
 				const ColorRGB colorOne{ 1.f, 1.f, 1.f };
 				kd = colorOne - f;
 			}
-			const auto diffuse = BRDF::Lambert(m_Albedo, kd);
+			const auto diffuse = BRDF::Lambert(kd, m_Albedo);
 
 			return kd * diffuse + specular;
 		}
 
 	private:
 		ColorRGB m_Albedo{0.955f, 0.637f, 0.538f}; //Copper
-		float m_Metalness{1.0f};
+		bool m_Metalness{ true };
 		float m_Roughness{0.1f}; // [1.0 > 0.0] >> [ROUGH > SMOOTH]
 	};
 #pragma endregion

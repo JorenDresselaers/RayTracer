@@ -91,9 +91,46 @@ namespace dae
 		//TRIANGLE HIT-TESTS
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			assert(false && "No Implemented Yet!");
-			return false;
+			//checking if the ray intersects the triangle's plane
+			Vector3 a{ triangle.v1 - triangle.v0 };
+			Vector3 b{ triangle.v2 - triangle.v1 };
+			Vector3 c{ triangle.v0 - triangle.v2 };
+			Vector3 normal{ Vector3::Cross(a, b) };
+			if (Vector3::Dot(normal, ray.direction) == 0) return false;
+
+			//calculating the intersection point is within the ray's range
+			Vector3 triangleCenter{ (triangle.v0 + triangle.v1 + triangle.v2) / 3 };
+			Vector3 L{ triangleCenter - ray.origin };
+			float t{ Vector3::Dot(L, normal) / Vector3::Dot(ray.direction, normal) };
+			if (t < ray.min || t > ray.max) return false;
+
+			//checking if the intersection is within the triangle
+			Vector3 p{ ray.origin + t * ray.direction};
+			Vector3 pointToSide{ p - triangle.v0 };
+			Vector3 pointToSideB{ p - triangle.v1 };
+			Vector3 pointToSideC{ p - triangle.v2 };
+			if (Vector3::Dot(normal, Vector3::Cross(a, pointToSide)) < 0.f) return false;
+			if (Vector3::Dot(normal, Vector3::Cross(b, pointToSideB)) < 0.f) return false;
+			if (Vector3::Dot(normal, Vector3::Cross(c, pointToSideC)) < 0.f) return false;
+
+			switch (triangle.cullMode)
+			{
+			case dae::TriangleCullMode::BackFaceCulling:
+				if (Vector3::Dot(normal, ray.direction) > 0.f) return false;
+				break;
+			case dae::TriangleCullMode::FrontFaceCulling:
+				if (Vector3::Dot(normal, ray.direction) < 0.f) return false;
+				break;
+			default:
+				break;
+			}
+
+			hitRecord.didHit = true;
+			hitRecord.normal = normal;
+			hitRecord.origin = p;
+			hitRecord.t = t;
+			hitRecord.materialIndex = triangle.materialIndex;
+			return true;
 		}
 
 		inline bool HitTest_Triangle(const Triangle& triangle, const Ray& ray)

@@ -46,7 +46,7 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
-	const auto pScene = new Scene_W3();
+	const auto pScene = new Scene_W4();
 	pScene->Initialize();
 
 	//Start loop
@@ -81,11 +81,40 @@ int main(int argc, char* args[])
 					pScene->ToggleFunkyMode();
 					pRenderer->ToggleFunkyMode();
 				}
+				if (e.key.keysym.scancode == SDL_SCANCODE_1)
+				{
+					pScene->MoveSelectedBall(Vector3(0.f, 1.f, 0.f));
+				}
+				if (e.key.keysym.scancode == SDL_SCANCODE_2)
+				{
+					pScene->MoveSelectedBall(Vector3(0.f, -1.f, 0.f));
+				}				
+				if (e.key.keysym.scancode == SDL_SCANCODE_3)
+				{
+					pScene->MoveSelectedBall(Vector3(1.f, 0.f, 0.f));
+				}
+				if (e.key.keysym.scancode == SDL_SCANCODE_4)
+				{
+					pScene->MoveSelectedBall(Vector3(-1.f, 0.f, 0.f));
+				}
+				if (e.key.keysym.scancode == SDL_SCANCODE_5)
+				{
+					pScene->MoveSelectedBall(Vector3(0.f, 0.f, 1.f));
+				}
+				if (e.key.keysym.scancode == SDL_SCANCODE_6)
+				{
+					pScene->MoveSelectedBall(Vector3(0.f, 0.f, -1.f));
+				}
 				break;
 			}
 		}
 
 		if (mouseState & SDL_BUTTON_LMASK)
+		{
+			pRenderer->SelectBall(mouseX, mouseY, pScene);
+		}
+
+		if (mouseState & SDL_BUTTON_MMASK)
 		{
 			pRenderer->AddBall(mouseX, mouseY, pScene);
 		}

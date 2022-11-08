@@ -42,6 +42,7 @@ namespace dae
 		}
 
 		void AddBall(float x, float y, Scene* pScene);
+		void SelectBall(float x, float y, Scene* pScene);
 		void RemoveBall(float x, float y, Scene* pScene);
 
 	private:
