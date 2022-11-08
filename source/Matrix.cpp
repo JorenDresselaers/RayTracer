@@ -165,9 +165,14 @@ namespace dae {
 
 	Matrix Matrix::CreateScale(float sx, float sy, float sz)
 	{
-		//todo W1
-		assert(false && "Not Implemented Yet");
-		return {};
+		Matrix matrixToReturn
+		{
+			Vector4{sx,				0,				0.f,	0.f},
+			Vector4{0,				sy,				0.f,	0.f},
+			Vector4{0.f,			0.f,			sz,		0.f},
+			Vector4{0.f,			0.f,			0.f,	1.f}
+		};
+		return matrixToReturn;
 	}
 
 	Matrix Matrix::CreateScale(const Vector3& s)

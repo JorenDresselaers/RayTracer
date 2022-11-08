@@ -106,10 +106,10 @@ namespace dae
 
 			//checking if the intersection is within the triangle
 			Vector3 p{ ray.origin + t * ray.direction};
-			Vector3 pointToSide{ p - triangle.v0 };
+			Vector3 pointToSideA{ p - triangle.v0 };
 			Vector3 pointToSideB{ p - triangle.v1 };
 			Vector3 pointToSideC{ p - triangle.v2 };
-			if (Vector3::Dot(normal, Vector3::Cross(a, pointToSide)) < 0.f) return false;
+			if (Vector3::Dot(normal, Vector3::Cross(a, pointToSideA)) < 0.f) return false;
 			if (Vector3::Dot(normal, Vector3::Cross(b, pointToSideB)) < 0.f) return false;
 			if (Vector3::Dot(normal, Vector3::Cross(c, pointToSideC)) < 0.f) return false;
 
@@ -142,8 +142,35 @@ namespace dae
 #pragma region TriangeMesh HitTest
 		inline bool HitTest_TriangleMesh(const TriangleMesh& mesh, const Ray& ray, HitRecord& hitRecord, bool ignoreHitRecord = false)
 		{
-			//todo W5
-			assert(false && "No Implemented Yet!");
+			HitRecord tempRecord;
+			Vector3 v0{}, v1{}, v2{};
+			int normalIndex{ 0 };
+			for (int currentTriangle{ 0 }; currentTriangle < mesh.indices.size(); ++currentTriangle)
+			{
+				int index{ currentTriangle % 3 };
+				if (index == 0)
+				{
+					v0 = mesh.transformedPositions.at(mesh.indices.at(currentTriangle));
+				}
+				else if (index == 1)
+				{
+					v1 = mesh.transformedPositions.at(mesh.indices.at(currentTriangle));
+				}
+				else if (index == 2)
+				{
+					v2 = mesh.transformedPositions.at(mesh.indices.at(currentTriangle));
+					Triangle newTriangle{ v0, v1, v2 };
+					newTriangle.materialIndex = mesh.materialIndex;
+					newTriangle.normal = mesh.transformedNormals.at(normalIndex);
+					newTriangle.cullMode = mesh.cullMode;
+					++normalIndex;
+					if (HitTest_Triangle(newTriangle, ray, tempRecord))
+					{
+						if (tempRecord.t < hitRecord.t) hitRecord = tempRecord;
+					}
+				}
+			}
+			if (hitRecord.didHit) return true;
 			return false;
 		}
 

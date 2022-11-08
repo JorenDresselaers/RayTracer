@@ -94,7 +94,7 @@ namespace dae
 
 		void RotateY(float yaw)
 		{
-			rotationTransform = Matrix::CreateRotationY(yaw);
+			rotationTransform = Matrix::CreateRotationY(-yaw); //inverted this to fix a mirroring issue
 		}
 
 		void Scale(const Vector3& scale)
@@ -123,20 +123,51 @@ namespace dae
 
 		void CalculateNormals()
 		{
+			normals.clear();
+			Vector3 v0{}, v1{}, v2{};
+			for (int currentTriangle{ 0 }; currentTriangle < indices.size(); ++currentTriangle)
+			{
+				int index{ currentTriangle % 3 };
+				if (index == 0)
+				{
+					v0 = positions.at(indices.at(currentTriangle));
+				}
+				else if (index == 1)
+				{
+					v1 = positions.at(indices.at(currentTriangle));					
+				}
+				else if (index == 2)
+				{
+					v2 = positions.at(indices.at(currentTriangle));
 
+					const Vector3 a{ v1 - v0 };
+					const Vector3 b{ v2 - v1 };
+					normals.push_back(Vector3::Cross(a, b));
+				}
+			}
 		}
 
 		void UpdateTransforms()
 		{
-			assert(false && "No Implemented Yet!");
 			//Calculate Final Transform 
-			//const auto finalTransform = ...
+			const auto finalTransform = scaleTransform * rotationTransform * translationTransform;
+
+			transformedPositions.clear();
+			transformedNormals.clear();
+			transformedNormals.reserve(normals.size());
+			transformedPositions.reserve(positions.size());
 
 			//Transform Positions (positions > transformedPositions)
-			//...
+			for (Vector3& currentPosition : positions)
+			{
+				transformedPositions.emplace_back(finalTransform.TransformPoint(currentPosition));
+			}
 
 			//Transform Normals (normals > transformedNormals)
-			//...
+			for (Vector3& currentNormal : normals)
+			{
+				transformedNormals.emplace_back(finalTransform.TransformVector(currentNormal).Normalized());
+			}
 		}
 	};
 #pragma endregion

@@ -28,11 +28,11 @@ namespace dae {
 
 	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
-		HitRecord tempRecord;
 
 		//spheres
 		for (const Sphere& currentSphere : m_SphereGeometries)
 		{
+			HitRecord tempRecord;
 			if (GeometryUtils::HitTest_Sphere(currentSphere, ray, tempRecord))
 			{
 				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
@@ -50,10 +50,20 @@ namespace dae {
 		}
 
 		//triangles
-		for (const Triangle& currentTriangle : m_TriangleGeometries)
+		//for (const Triangle& currentTriangle : m_TriangleGeometries)
+		//{
+		//	HitRecord tempRecord;
+		//	if (GeometryUtils::HitTest_Triangle(currentTriangle, ray, tempRecord))
+		//	{
+		//		if (tempRecord.t < closestHit.t) closestHit = tempRecord;
+		//	}
+		//}
+		
+		//triangles meshes
+		for (const TriangleMesh& currentMesh : m_TriangleMeshGeometries)
 		{
 			HitRecord tempRecord;
-			if (GeometryUtils::HitTest_Triangle(currentTriangle, ray, tempRecord))
+			if (GeometryUtils::HitTest_TriangleMesh(currentMesh, ray, tempRecord))
 			{
 				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
 			}
@@ -80,13 +90,21 @@ namespace dae {
 			}
 		}
 
-		for (const Triangle& currentTriangle : m_TriangleGeometries)
+		for (const TriangleMesh& currentMesh : m_TriangleMeshGeometries)
 		{
-			if (GeometryUtils::HitTest_Triangle(currentTriangle, ray))
+			if (GeometryUtils::HitTest_TriangleMesh(currentMesh, ray))
 			{
 				return true;
 			}
 		}
+
+		//for (const Triangle& currentTriangle : m_TriangleGeometries)
+		//{
+		//	if (GeometryUtils::HitTest_Triangle(currentTriangle, ray))
+		//	{
+		//		return true;
+		//	}
+		//}
 
 		return false;
 	}
@@ -423,12 +441,32 @@ namespace dae {
 		const auto matLambertPhong_Gray = AddMaterial(new Material_LambertPhong({ colors::Gray }, 1.f, 1.f, 60.f));
 		const auto matLambertPhong_Green = AddMaterial(new Material_LambertPhong({ colors::Green }, 1.f, 1.f, 60.f));
 
+		//const auto triangleMesh = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_Gray);
+		//triangleMesh->positions = { {-.75f, -1.f, .0f}, {-.75f, 1.f, 0.f}, {.75f, 1.f, 1.f}, {.75f, -1.f, 0.f} };
+		//triangleMesh->indices = {
+		//	0, 1, 2,
+		//	0, 2, 3
+		//};
+		//m_pMeshesVector.emplace_back(triangleMesh);
+		//
+		//triangleMesh->CalculateNormals();
+		//
+		//triangleMesh->Translate({ 0.f, 1.5f, 0.f });
+		//triangleMesh->RotateY(45.f);
+		//
+		//triangleMesh->UpdateTransforms();
 
-		auto triangle = Triangle{ {-.75f, .5f, .0f}, {-.75f, 2.f, .0f}, {.75f, .5f, .0f} };
-		triangle.cullMode = TriangleCullMode::NoCulling;
-		triangle.materialIndex = matLambert_White;
+		const auto cubeMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_Gray);
+		Utils::ParseOBJ("Resources/simple_cube.obj",
+			cubeMesh->positions,
+			cubeMesh->normals,
+			cubeMesh->indices);
 
-		m_TriangleGeometries.emplace_back(triangle);
+		cubeMesh->Scale({ .7f, .7f, .7f });
+		cubeMesh->Translate({ .0f, 1.f, 0.f });
+		cubeMesh->UpdateTransforms();
+
+		m_pMeshesVector.emplace_back(cubeMesh);
 
 		//AddSphere({ -.75f, .5f, .0f }, 0.1f, matLambert_Red);
 		//AddSphere({ -.75f, 2.f, .0f }, 0.1f, matLambert_Blue);
@@ -445,5 +483,17 @@ namespace dae {
 		AddPointLight({ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //BACKLIGHT
 		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
 		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
+	}
+	void Scene_W4::Update(Timer* pTimer)
+	{
+		Scene::Update(pTimer);
+		for (TriangleMesh* currentMesh : m_pMeshesVector)
+		{
+			if (currentMesh)
+			{
+				currentMesh->RotateY(PI_DIV_2 * pTimer->GetTotal());
+				currentMesh->UpdateTransforms();
+			}
+		}
 	}
 }

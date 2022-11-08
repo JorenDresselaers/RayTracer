@@ -78,7 +78,7 @@ namespace dae
 		std::vector<Plane> m_PlaneGeometries{};
 		std::vector<Sphere> m_SphereGeometries{};
 		std::vector<TriangleMesh> m_TriangleMeshGeometries{};
-		std::vector<Triangle> m_TriangleGeometries{}; //temporary
+		//std::vector<Triangle> m_TriangleGeometries{}; //temporary
 		std::vector<Light> m_Lights{};
 		std::vector<Material*> m_Materials{};
 
@@ -155,5 +155,9 @@ namespace dae
 		Scene_W4& operator=(Scene_W4&&) noexcept = delete;
 
 		void Initialize() override;
+		void Update(Timer* pTimer) override;
+
+	private:
+		std::vector<TriangleMesh*> m_pMeshesVector;
 	};
 }
