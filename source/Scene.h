@@ -50,6 +50,10 @@ namespace dae
 		{
 			m_FunkyMode = !m_FunkyMode;
 		}
+		bool GetFunkyMode()
+		{
+			return m_FunkyMode;
+		}
 
 	protected:
 		std::string	sceneName;

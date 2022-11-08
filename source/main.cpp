@@ -34,7 +34,7 @@ int main(int argc, char* args[])
 	const uint32_t height = 480;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
-		"RayTracer - **Insert Name**",
+		"RayTracer - Dresselaers Joren",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width, height, 0);
@@ -107,7 +107,14 @@ int main(int argc, char* args[])
 		if (printTimer >= 1.f)
 		{
 			printTimer = 0.f;
-			std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+			if (pScene->GetFunkyMode())
+			{
+				std::cout << "dFPS: " << pTimer->GetdFPS() + 120.f << std::endl;
+			}
+			else
+			{
+				std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
+			}
 		}
 
 		//Save screenshot after full render
