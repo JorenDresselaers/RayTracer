@@ -46,7 +46,8 @@ int main(int argc, char* args[])
 	const auto pTimer = new Timer();
 	const auto pRenderer = new Renderer(pWindow);
 
-	const auto pScene = new Scene_W4();
+	//const auto pScene = new Scene_W4_BunnyScene();
+	const auto pScene = new Scene_W4_ReferenceScene();
 	pScene->Initialize();
 
 	//Start loop
@@ -111,17 +112,17 @@ int main(int argc, char* args[])
 
 		if (mouseState & SDL_BUTTON_LMASK)
 		{
-			pRenderer->SelectBall(mouseX, mouseY, pScene);
+			pRenderer->SelectBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
 		}
 
 		if (mouseState & SDL_BUTTON_MMASK)
 		{
-			pRenderer->AddBall(mouseX, mouseY, pScene);
+			pRenderer->AddBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
 		}
 
 		if (mouseState & SDL_BUTTON_RMASK)
 		{
-			pRenderer->RemoveBall(mouseX, mouseY, pScene);
+			pRenderer->RemoveBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
 		}
 
 		//--------- Update ---------

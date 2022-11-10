@@ -166,7 +166,7 @@ namespace dae
 			//Transform Normals (normals > transformedNormals)
 			for (Vector3& currentNormal : normals)
 			{
-				transformedNormals.emplace_back(finalTransform.TransformVector(currentNormal).Normalized());
+				transformedNormals.emplace_back(finalTransform.TransformVector(currentNormal));
 			}
 		}
 	};

@@ -96,22 +96,22 @@ namespace dae
 				testingVariable -= 0.1f;
 			}
 
-			if (pKeyboardState[SDL_SCANCODE_D])
+			if (pKeyboardState[SDL_SCANCODE_D] || pKeyboardState[SDL_SCANCODE_RIGHT])
 			{
 				origin += right.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
-			if (pKeyboardState[SDL_SCANCODE_A])
+			if (pKeyboardState[SDL_SCANCODE_A] || pKeyboardState[SDL_SCANCODE_LEFT])
 			{
 				origin -= right.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
-			if (pKeyboardState[SDL_SCANCODE_S])
+			if (pKeyboardState[SDL_SCANCODE_S] || pKeyboardState[SDL_SCANCODE_DOWN])
 			{
 				origin -= forward.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
-			if (pKeyboardState[SDL_SCANCODE_W])
+			if (pKeyboardState[SDL_SCANCODE_W] || pKeyboardState[SDL_SCANCODE_UP])
 			{
 				origin += forward.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
@@ -126,13 +126,13 @@ namespace dae
 				origin += up.Normalized() * movementSpeed * deltaTime * shiftModifier;
 			}
 
-			if (pKeyboardState[SDL_SCANCODE_LEFT])
+			if (pKeyboardState[SDL_SCANCODE_K])
 			{
 				if(fovAngle > 1 + shiftModifier)
 					SetFOV(fovAngle - shiftModifier);
 			}
-
-			if (pKeyboardState[SDL_SCANCODE_RIGHT])
+			
+			if (pKeyboardState[SDL_SCANCODE_L])
 			{
 				if (fovAngle < 179 - shiftModifier)
 					SetFOV(fovAngle + shiftModifier);
