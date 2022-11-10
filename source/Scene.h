@@ -46,14 +46,14 @@ namespace dae
 		void AddSphereOnClick(Vector3 origin);
 		void RemoveSphereOnClick(Vector3 origin);
 		void DeleteBalls();
-		void ToggleFunkyMode()
+		void ToggleEditMode()
 		{
 			ResetSelectedMaterial();
-			m_FunkyMode = !m_FunkyMode;
+			m_EditMode = !m_EditMode;
 		}
-		bool GetFunkyMode()
+		bool GetEditMode()
 		{
-			return m_FunkyMode;
+			return m_EditMode;
 		}
 
 		void SelectSphere(const Ray& ray);
@@ -69,7 +69,7 @@ namespace dae
 			Sphere,
 			Plane
 		};
-		bool m_FunkyMode{ false };
+		bool m_EditMode{ false };
 		SelectedGeometry m_SelectedGeometry{SelectedGeometry::Null};
 		int m_SelectedSphereIndex{ -1 };
 		int m_OriginalMaterial{ -1 };

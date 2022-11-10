@@ -75,12 +75,13 @@ int main(int argc, char* args[])
 					pRenderer->ToggleShadows();
 				if(e.key.keysym.scancode == SDL_SCANCODE_F3)
 					pRenderer->CycleLightingMode();
+
 				if(e.key.keysym.scancode == SDL_SCANCODE_F4)
 					pScene->DeleteBalls();
 				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
 				{
-					pScene->ToggleFunkyMode();
-					pRenderer->ToggleFunkyMode();
+					pScene->ToggleEditMode();
+					pRenderer->ToggleEditMode();
 				}
 				if (e.key.keysym.scancode == SDL_SCANCODE_1)
 				{
@@ -106,6 +107,9 @@ int main(int argc, char* args[])
 				{
 					pScene->MoveSelectedBall(Vector3(0.f, 0.f, -1.f));
 				}
+
+				if (e.key.keysym.scancode == SDL_SCANCODE_F6)
+					pTimer->StartBenchmark();
 				break;
 			}
 		}
@@ -137,14 +141,7 @@ int main(int argc, char* args[])
 		if (printTimer >= 1.f)
 		{
 			printTimer = 0.f;
-			if (pScene->GetFunkyMode())
-			{
-				std::cout << "dFPS: " << pTimer->GetdFPS() + 120.f << std::endl;
-			}
-			else
-			{
-				std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
-			}
+			std::cout << "dFPS: " << pTimer->GetdFPS() << std::endl;
 		}
 
 		//Save screenshot after full render

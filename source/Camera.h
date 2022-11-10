@@ -144,9 +144,6 @@ namespace dae
 			int mouseX{}, mouseY{};
 			const uint32_t mouseState = SDL_GetRelativeMouseState(&mouseX, &mouseY);
 
-			//float yawAngle{};
-			//float pitchAngle{};
-
 			Matrix finalRotation{};
 
 			// left and right click
@@ -177,11 +174,6 @@ namespace dae
 					{
 						totalPitch -= mouseY * deltaTime * mouseSensitivity;
 					}
-
-					//finalRotation = Matrix::CreateRotation(totalPitch, totalYaw, 0);
-					//
-					//forward = finalRotation.TransformVector(Vector3::UnitZ);
-					//forward.Normalize();
 				}
 
 				// left click

@@ -36,9 +36,9 @@ namespace dae
 			m_ShadowsEnabled = !m_ShadowsEnabled;
 		}
 
-		void ToggleFunkyMode()
+		void ToggleEditMode()
 		{
-			m_FunkyMode = !m_FunkyMode;
+			m_EditMode = !m_EditMode;
 		}
 
 		void AddBall(float x, float y, Scene* pScene);
@@ -55,7 +55,7 @@ namespace dae
 		};
 
 		LightingMode m_CurrentLightingMode{ LightingMode::Combined };
-		bool m_ShadowsEnabled{ true }, m_FunkyMode{ false };
+		bool m_ShadowsEnabled{ true }, m_EditMode{ false };
 
 		SDL_Window* m_pWindow{};
 

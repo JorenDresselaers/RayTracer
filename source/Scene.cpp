@@ -28,41 +28,28 @@ namespace dae {
 
 	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
-
-		//spheres
-		for (const Sphere& currentSphere : m_SphereGeometries)
-		{
-			HitRecord tempRecord;
-			if (GeometryUtils::HitTest_Sphere(currentSphere, ray, tempRecord))
-			{
-				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
-			}
-		}
-
+		HitRecord tempRecord;
 		//planes
 		for (const Plane& currentPlane : m_PlaneGeometries)
 		{
-			HitRecord tempRecord;
 			if (GeometryUtils::HitTest_Plane(currentPlane, ray, tempRecord))
 			{
 				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
 			}
 		}
 
-		//triangles
-		//for (const Triangle& currentTriangle : m_TriangleGeometries)
-		//{
-		//	HitRecord tempRecord;
-		//	if (GeometryUtils::HitTest_Triangle(currentTriangle, ray, tempRecord))
-		//	{
-		//		if (tempRecord.t < closestHit.t) closestHit = tempRecord;
-		//	}
-		//}
+		//spheres
+		for (const Sphere& currentSphere : m_SphereGeometries)
+		{
+			if (GeometryUtils::HitTest_Sphere(currentSphere, ray, tempRecord))
+			{
+				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
+			}
+		}
 		
 		//triangles meshes
 		for (const TriangleMesh& currentMesh : m_TriangleMeshGeometries)
 		{
-			HitRecord tempRecord;
 			if (GeometryUtils::HitTest_TriangleMesh(currentMesh, ray, tempRecord))
 			{
 				if (tempRecord.t < closestHit.t) closestHit = tempRecord;
@@ -72,19 +59,19 @@ namespace dae {
 
 	bool Scene::DoesHit(const Ray& ray) const
 	{
-		//spheres
-		for (const Sphere& currentSphere : m_SphereGeometries)
+		//planes
+		for (const Plane& currentPlane : m_PlaneGeometries)
 		{
-			if (GeometryUtils::HitTest_Sphere(currentSphere, ray))
+			if (GeometryUtils::HitTest_Plane(currentPlane, ray))
 			{
 				return true;
 			}
 		}
 
-		//planes
-		for (const Plane& currentPlane : m_PlaneGeometries)
+		//spheres
+		for (const Sphere& currentSphere : m_SphereGeometries)
 		{
-			if (GeometryUtils::HitTest_Plane(currentPlane, ray))
+			if (GeometryUtils::HitTest_Sphere(currentSphere, ray))
 			{
 				return true;
 			}
@@ -97,15 +84,6 @@ namespace dae {
 				return true;
 			}
 		}
-
-		//for (const Triangle& currentTriangle : m_TriangleGeometries)
-		//{
-		//	if (GeometryUtils::HitTest_Triangle(currentTriangle, ray))
-		//	{
-		//		return true;
-		//	}
-		//}
-
 		return false;
 	}
 
@@ -516,18 +494,21 @@ namespace dae {
 		const auto triangleOne = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
 		triangleOne->AppendTriangle(baseTriangle, true);
 		triangleOne->Translate({-1.75f, 4.5f, 0.f});
+		triangleOne->UpdateAABB();
 		triangleOne->UpdateTransforms();
 		m_pMeshesVector.push_back(triangleOne);
 
 		const auto triangleTwo = AddTriangleMesh(TriangleCullMode::FrontFaceCulling, matLambert_White);
 		triangleTwo->AppendTriangle(baseTriangle, true);
 		triangleTwo->Translate({0.f, 4.5f, 0.f});
+		triangleTwo->UpdateAABB();
 		triangleTwo->UpdateTransforms();
 		m_pMeshesVector.push_back(triangleTwo);
 
 		const auto triangleThree = AddTriangleMesh(TriangleCullMode::NoCulling, matLambert_White);
 		triangleThree->AppendTriangle(baseTriangle, true);
 		triangleThree->Translate({1.75f, 4.5f, 0.f});
+		triangleThree->UpdateAABB();
 		triangleThree->UpdateTransforms();
 		m_pMeshesVector.push_back(triangleThree);
 
@@ -536,6 +517,7 @@ namespace dae {
 		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
 		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
 	}
+
 	void Scene_W4_ReferenceScene::Update(Timer* pTimer)
 	{
 		Scene::Update(pTimer);
@@ -572,8 +554,8 @@ namespace dae {
 			bunnyMesh->normals,
 			bunnyMesh->indices);
 
-		bunnyMesh->CalculateNormals();
 		bunnyMesh->Scale({ 2.f, 2.f, 2.f });
+		bunnyMesh->UpdateAABB();
 		bunnyMesh->UpdateTransforms();
 
 		m_pMeshesVector.push_back(bunnyMesh);

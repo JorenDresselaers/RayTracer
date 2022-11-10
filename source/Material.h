@@ -116,12 +116,9 @@ namespace dae
 
 			const float dots{ 4 * (Vector3::Dot(v, normal) * Vector3::Dot(l, normal)) };
 			const auto specular{ (d * f * g) * (1 / dots) };
-			ColorRGB kd{ 0.f, 0.f, 0.f };
-			if (!m_Metalness)
-			{
-				const ColorRGB colorOne{ 1.f, 1.f, 1.f };
-				kd = colorOne - f;
-			}
+
+			const ColorRGB kd = (!m_Metalness) ? ColorRGB( 1.f, 1.f, 1.f ) - f : ColorRGB{ 0.f, 0.f, 0.f };
+
 			const auto diffuse = BRDF::Lambert(kd, m_Albedo);
 
 			return kd * diffuse + specular;

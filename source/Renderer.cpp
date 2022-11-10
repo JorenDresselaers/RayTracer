@@ -42,7 +42,7 @@ void Renderer::Render(Scene* pScene) const
 
 	const uint32_t numPixels{ static_cast<uint32_t>(m_Width) * static_cast<uint32_t>(m_Height) };
 
-	//if(m_FunkyMode) pScene->MoveLight(camera.origin + camera.forward*5.f);
+	//if(m_EditMode) pScene->MoveLight(camera.origin + camera.forward*5.f);
 
 #if defined(ASYNC)
 	const uint32_t numCores{ std::thread::hardware_concurrency() };
@@ -126,13 +126,12 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, f
 	
 	ColorRGB finalColor{};
 	if (hitRecord.didHit)
-	{
-		//finalColor = materials[hitRecord.materialIndex]->Shade();
-	
+	{	
+		Ray rayToLight{};
 		for (const auto& currentLight : lights)
 		{
 			Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
-			Ray rayToLight{ hitRecord.origin, directionToLight.Normalized() };
+			rayToLight = { hitRecord.origin, directionToLight.Normalized() };
 			rayToLight.min = 0.01f;
 			rayToLight.max = directionToLight.Magnitude();
 	
@@ -143,8 +142,24 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, f
 			if (lambertCos < 0)
 				continue;
 	
-			finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * lambertCos *
-				materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
+			switch (m_CurrentLightingMode)
+			{
+			case dae::Renderer::LightingMode::ObservedArea:
+				finalColor += ColorRGB({1.f, 1.f, 1.f}) * lambertCos;
+				break;
+			case dae::Renderer::LightingMode::Radiance:
+				finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin);
+				break;
+			case dae::Renderer::LightingMode::BRDF:
+				finalColor += materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
+				break;
+			case dae::Renderer::LightingMode::Combined:
+				finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * lambertCos *
+					materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	
@@ -181,7 +196,7 @@ void dae::Renderer::CycleLightingMode()
 #pragma region Level Editing
 void dae::Renderer::SelectBall(float x, float y, Scene* pScene)
 {
-	if (!m_FunkyMode) return;
+	if (!m_EditMode) return;
 
 	Camera& camera = pScene->GetCamera();
 	float aspectRatio = float(m_Width) / float(m_Height);
@@ -199,7 +214,7 @@ void dae::Renderer::SelectBall(float x, float y, Scene* pScene)
 
 void dae::Renderer::AddBall(float x, float y, Scene* pScene)
 {
-	if (!m_FunkyMode) return;
+	if (!m_EditMode) return;
 
 	Camera& camera = pScene->GetCamera();
 	float aspectRatio = float(m_Width) / float(m_Height);
@@ -221,7 +236,7 @@ void dae::Renderer::AddBall(float x, float y, Scene* pScene)
 
 void dae::Renderer::RemoveBall(float x, float y, Scene* pScene)
 {
-	if (!m_FunkyMode) return;
+	if (!m_EditMode) return;
 
 	Camera& camera = pScene->GetCamera();
 	float aspectRatio = float(m_Width) / float(m_Height);

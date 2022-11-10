@@ -142,7 +142,7 @@ namespace dae
 		static ColorRGB Yellow{ 1,1,0 };
 		static ColorRGB Cyan{ 0,1,1 };
 		static ColorRGB Magenta{ 1,0,1 };
-		static ColorRGB White{ 1,1,1 };
+		static ColorRGB White{ 1.f,1.f,1.f };
 		static ColorRGB Black{ 0,0,0 };
 		static ColorRGB Gray{ 0.5f,0.5f,0.5f };
 	}
