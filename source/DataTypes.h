@@ -242,7 +242,7 @@ namespace dae
 
 		float min{ 0.0001f };
 		float max{ FLT_MAX };
-		bool castsShadow{ false };
+		bool castsShadow{ false }; //added to differentiate between culling modes on triangles
 	};
 
 	struct HitRecord

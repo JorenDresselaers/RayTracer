@@ -43,8 +43,6 @@ void Renderer::Render(Scene* pScene) const
 
 	const uint32_t numPixels{ static_cast<uint32_t>(m_Width) * static_cast<uint32_t>(m_Height) };
 
-	//if(m_EditMode) pScene->MoveLight(camera.origin + camera.forward*5.f);
-
 #if defined(ASYNC)
 	const uint32_t numCores{ std::thread::hardware_concurrency() };
 	std::vector<std::future<void>> async_futures{};
@@ -108,8 +106,6 @@ bool Renderer::SaveBufferToImage() const
 void Renderer::RenderPixel(const Scene* pScene, const int pixelIndex, const float aspectRatio, const Camera& camera,
                            const Matrix cameraToWorld, const std::vector<Light>& lights, const std::vector<Material*>& materials) const
 {
-	//const int px{ static_cast<int>(pixelIndex) % m_Width };
-	//const int py{ static_cast<int>(pixelIndex) / m_Width };
 	const int px{ pixelIndex % m_Width };
 	const int py{ pixelIndex / m_Width };
 	
@@ -117,7 +113,6 @@ void Renderer::RenderPixel(const Scene* pScene, const int pixelIndex, const floa
 	const float directionY{ (1.f - 2.f * ((py + .5f) / m_Height)) * camera.fovRadians };
 	
 	const Vector3 rayDirection{ cameraToWorld.TransformVector(directionX, directionY, 1.f) };
-	//rayDirection = cameraToWorld.TransformVector(rayDirection);
 	const Ray hitRay{ camera.origin, rayDirection };
 	HitRecord hitRecord{};
 	

@@ -184,20 +184,6 @@ namespace dae {
 		}
 	}
 
-	//void Scene::ToggleRotate()
-	//{
-	//	switch (m_SelectedGeometry)
-	//	{
-	//	case dae::Scene::SelectedGeometry::Null:
-	//		break;
-	//	case dae::Scene::SelectedGeometry::Plane:
-	//		Scene::
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
-
 	void Scene::RemoveSphereOnClick(Vector3 origin)
 	{
 		for (size_t currentSphere{ 0 }; currentSphere < m_SphereGeometries.size(); ++currentSphere)
@@ -569,18 +555,10 @@ namespace dae {
 		m_Camera.origin = { 0.f, 3.f, -9.f };
 		m_Camera.SetFOV(45.f);
 
-		//const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, 1.f));
-		//const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, .6f));
-		//const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, true, .1f));
-		//const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, 1.f));
-		//const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .6f));
-		//const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .1f));
-
 		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
 		const auto matLambert_White = AddMaterial(new Material_Lambert(colors::White, 1.f));
 		const auto matLambert_ExtraWhite = AddMaterial(new Material_Lambert(ColorRGB(5.f, 5.f, 5.f), 1.f));
-		//const auto matLambert_Red = AddMaterial(new Material_Lambert({ colors::Red }, 1.f));
-		//const auto matLambertPhong_Cyan = AddMaterial(new Material_LambertPhong({ colors::Cyan }, 1.f, 1.f, 60.f));
+
 
 		const unsigned char matId_Solid_White = AddMaterial(new Material_SolidColor{ colors::White });
 
@@ -592,8 +570,6 @@ namespace dae {
 			bunnyMesh->indices);
 
 		bunnyMesh->Scale({ 2.f, 2.f, 2.f });
-		//bunnyMesh->Scale({ .5f, .5f, .5f });
-		//bunnyMesh->Scale({ 5.f, 5.f, 5.f });
 		bunnyMesh->UpdateAABB();
 		bunnyMesh->UpdateTransforms();
 
@@ -611,6 +587,7 @@ namespace dae {
 		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
 		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
 	}
+
 	void Scene_W4_BunnyScene::Update(Timer* pTimer)
 	{
 		Scene::Update(pTimer);
@@ -628,19 +605,44 @@ namespace dae {
 
 	void Scene_W4_ExtraScene::Initialize()
 	{
+		sceneName = "Extra Scene";
+		m_Camera.origin = { 0.f, 3.f, -9.f };
+		m_Camera.SetFOV(45.f);
+
+		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
+		const unsigned char matId_Solid_White = AddMaterial(new Material_SolidColor{ colors::White });
+		const unsigned char matId_Solid_Black = AddMaterial(new Material_SolidColor{ colors::Black });
+		const unsigned char matId_Solid_Red = AddMaterial(new Material_SolidColor{ colors::Red });
+
+		const auto matCT_WhiteRoughPlastic = AddMaterial(new Material_CookTorrence(colors::White, false, 1.f));
+		const auto matCT_BlackRoughPlastic = AddMaterial(new Material_CookTorrence(colors::Black, false, 1.f));
+		const auto matCT_RedRoughPlastic = AddMaterial(new Material_CookTorrence(colors::Red, false, 1.f));
+
+
+		AddSphere({ 0.f, .75f, 0.f }, 1.f, matCT_WhiteRoughPlastic);
+		AddSphere({ 0.f, 2.25f, 0.f }, .75f, matCT_WhiteRoughPlastic);
+		AddSphere({ 0.f, 3.25f, 0.f }, .5f, matCT_WhiteRoughPlastic);
+		AddSphere({ .2f, 3.45f, -0.4f }, .1f, matCT_BlackRoughPlastic);
+		AddSphere({ -.2f, 3.45f, -0.4f }, .1f, matCT_BlackRoughPlastic);
+		AddSphere({ .0f, 3.25f, -0.4f }, .15f, matCT_RedRoughPlastic);
+
+		AddSphere({ 3.f, .25f, 0.f }, .75f, matCT_WhiteRoughPlastic);
+		AddSphere({ 3.f, 1.25f, 0.f }, .5f, matCT_WhiteRoughPlastic);
+		AddSphere({ 3.2f, 1.45f, -0.4f }, .1f, matCT_BlackRoughPlastic);
+		AddSphere({ 2.8f, 1.45f, -0.4f }, .1f, matCT_BlackRoughPlastic);
+		AddSphere({ 3.0f, 1.25f, -0.4f }, .15f, matCT_RedRoughPlastic);
+
+		//Plane
+		AddPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }, matLambert_GrayBlue); //BOTTOM
+
+		//Lights
+		AddPointLight({ 0.f, 5.f, 5.f }, 100.f, ColorRGB{ .8f, .8f, .8f }); // Following Light
 	}
+
 	void Scene_W4_ExtraScene::Update(Timer* pTimer)
 	{
 		Scene::Update(pTimer);
-		const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
 
-		for (TriangleMesh* currentMesh : m_pMeshesVector)
-		{
-			if (currentMesh)
-			{
-				currentMesh->RotateY(yawAngle);
-				currentMesh->UpdateTransforms();
-			}
-		}
+		m_Lights[0].origin = m_Camera.origin;
 	}
 }
