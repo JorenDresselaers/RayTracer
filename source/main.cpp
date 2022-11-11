@@ -69,64 +69,61 @@ int main(int argc, char* args[])
 				isLooping = false;
 				break;
 			case SDL_KEYUP:
-				if(e.key.keysym.scancode == SDL_SCANCODE_X)
-					takeScreenshot = true;
-				if(e.key.keysym.scancode == SDL_SCANCODE_F2)
-					pRenderer->ToggleShadows();
-				if(e.key.keysym.scancode == SDL_SCANCODE_F3)
-					pRenderer->CycleLightingMode();
-
-				if(e.key.keysym.scancode == SDL_SCANCODE_F4)
-					pScene->DeleteBalls();
-				if (e.key.keysym.scancode == SDL_SCANCODE_F5)
+				switch (e.key.keysym.scancode)
 				{
+				case SDL_SCANCODE_X:
+					takeScreenshot = true;
+					break;
+				case SDL_SCANCODE_F2:
+					pRenderer->ToggleShadows();
+					break;
+				case SDL_SCANCODE_F3:
+					pRenderer->CycleLightingMode();
+					break;
+				case SDL_SCANCODE_F4:
+					pScene->DeleteBalls();
+					break;
+				case SDL_SCANCODE_F5:
 					pScene->ToggleEditMode();
 					pRenderer->ToggleEditMode();
-				}
-				if (e.key.keysym.scancode == SDL_SCANCODE_1)
-				{
-					pScene->MoveSelectedBall(Vector3(0.f, 1.f, 0.f));
-				}
-				if (e.key.keysym.scancode == SDL_SCANCODE_2)
-				{
-					pScene->MoveSelectedBall(Vector3(0.f, -1.f, 0.f));
-				}				
-				if (e.key.keysym.scancode == SDL_SCANCODE_3)
-				{
-					pScene->MoveSelectedBall(Vector3(1.f, 0.f, 0.f));
-				}
-				if (e.key.keysym.scancode == SDL_SCANCODE_4)
-				{
-					pScene->MoveSelectedBall(Vector3(-1.f, 0.f, 0.f));
-				}
-				if (e.key.keysym.scancode == SDL_SCANCODE_5)
-				{
-					pScene->MoveSelectedBall(Vector3(0.f, 0.f, 1.f));
-				}
-				if (e.key.keysym.scancode == SDL_SCANCODE_6)
-				{
-					pScene->MoveSelectedBall(Vector3(0.f, 0.f, -1.f));
-				}
-
-				if (e.key.keysym.scancode == SDL_SCANCODE_F6)
+					break;
+				case SDL_SCANCODE_F6:
 					pTimer->StartBenchmark();
+					break;
+				case SDL_SCANCODE_1:
+					pScene->MoveSelectedBall(Vector3(0.f, 1.f, 0.f));
+					break;
+				case SDL_SCANCODE_2:
+					pScene->MoveSelectedBall(Vector3(0.f, -1.f, 0.f));
+					break;
+				case SDL_SCANCODE_3:
+					pScene->MoveSelectedBall(Vector3(1.f, 0.f, 0.f));
+					break;
+				case SDL_SCANCODE_4:
+					pScene->MoveSelectedBall(Vector3(-1.f, 0.f, 0.f));
+					break;
+				case SDL_SCANCODE_5:
+					pScene->MoveSelectedBall(Vector3(0.f, 0.f, 1.f));
+					break;
+				case SDL_SCANCODE_6:
+					pScene->MoveSelectedBall(Vector3(0.f, 0.f, -1.f));
+					break;
+				default:
+					break;
+				}
+			default:
 				break;
 			}
 		}
 
 		if (mouseState & SDL_BUTTON_LMASK)
 		{
-			pRenderer->SelectBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
+			pRenderer->SelectGeometry(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
 		}
 
 		if (mouseState & SDL_BUTTON_MMASK)
 		{
-			pRenderer->AddBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
-		}
-
-		if (mouseState & SDL_BUTTON_RMASK)
-		{
-			pRenderer->RemoveBall(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
+			pRenderer->AddSphere(static_cast<float>(mouseX), static_cast<float>(mouseY), pScene);
 		}
 
 		//--------- Update ---------

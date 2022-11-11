@@ -27,8 +27,8 @@ namespace dae
 
 		void Render(Scene* pScene) const;
 		bool SaveBufferToImage() const;
-		void RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, float aspectRatio, const Camera& camera,
-			Matrix cameraToWorld, const std::vector<Light>& lights, const std::vector<Material*>& materials) const;
+		void RenderPixel(const Scene* pScene, int pixelIndex, float aspectRatio, const Camera& camera,
+		                 Matrix cameraToWorld, const std::vector<Light>& lights, const std::vector<Material*>& materials) const;
 
 		void CycleLightingMode();
 		void ToggleShadows()
@@ -41,9 +41,8 @@ namespace dae
 			m_EditMode = !m_EditMode;
 		}
 
-		void AddBall(float x, float y, Scene* pScene);
-		void SelectBall(float x, float y, Scene* pScene);
-		void RemoveBall(float x, float y, Scene* pScene);
+		void AddSphere(float x, float y, Scene* pScene) const;
+		void SelectGeometry(float x, float y, Scene* pScene) const;
 
 	private:
 		enum class LightingMode
@@ -64,5 +63,6 @@ namespace dae
 
 		int m_Width{};
 		int m_Height{};
+		float m_AspectRatio{};
 	};
 }

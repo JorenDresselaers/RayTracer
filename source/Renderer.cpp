@@ -1,4 +1,5 @@
 //External includes
+// ReSharper disable CppUnusedIncludeDirective
 #include "SDL.h"
 #include "SDL_surface.h"
 
@@ -28,6 +29,7 @@ Renderer::Renderer(SDL_Window* pWindow) :
 	//Initialize
 	SDL_GetWindowSize(pWindow, &m_Width, &m_Height);
 	m_pBufferPixels = static_cast<uint32_t*>(m_pBuffer->pixels);
+	m_AspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 }
 
 void Renderer::Render(Scene* pScene) const
@@ -38,7 +40,6 @@ void Renderer::Render(Scene* pScene) const
 	auto& materials = pScene->GetMaterials();
 	auto& lights = pScene->GetLights();
 
-	float aspectRatio = float(m_Width) / float(m_Height);
 
 	const uint32_t numPixels{ static_cast<uint32_t>(m_Width) * static_cast<uint32_t>(m_Height) };
 
@@ -67,7 +68,7 @@ void Renderer::Render(Scene* pScene) const
 					const uint32_t endPixelIndex{ currentPixelIndex + taskSize };
 					for (uint32_t pixelIndex{ currentPixelIndex }; pixelIndex < endPixelIndex; ++pixelIndex)
 					{
-						RenderPixel(pScene, pixelIndex, camera.fovAngle, aspectRatio, camera, cameraToWorld, lights, materials);
+						RenderPixel(pScene, pixelIndex, aspectRatio, camera, cameraToWorld, lights, materials);
 					}
 				})
 		);
@@ -84,12 +85,12 @@ void Renderer::Render(Scene* pScene) const
 #elif defined(PARALLEL_FOR)
 	concurrency::parallel_for(0u, numPixels, [=, this](int pixelIndex)
 		{
-			RenderPixel(pScene, pixelIndex, camera.fovAngle, aspectRatio, camera, cameraToWorld, lights, materials);
+			RenderPixel(pScene, pixelIndex, m_AspectRatio, camera, cameraToWorld, lights, materials);
 		});
 #else
 	for (uint32_t i{ 0 }; i < numPixels; ++i)
 	{
-		RenderPixel(pScene, i, camera.fovAngle, aspectRatio, camera, cameraToWorld, lights, materials);
+		RenderPixel(pScene, i, aspectRatio, camera, cameraToWorld, lights, materials);
 	}
 
 #endif
@@ -104,60 +105,58 @@ bool Renderer::SaveBufferToImage() const
 	return SDL_SaveBMP(m_pBuffer, "RayTracing_Buffer.bmp");
 }
 
-void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, float aspectRatio, const Camera& camera,
-	Matrix cameraToWorld, const std::vector<Light>& lights, const std::vector<Material*>& materials) const
+void Renderer::RenderPixel(const Scene* pScene, const int pixelIndex, const float aspectRatio, const Camera& camera,
+                           const Matrix cameraToWorld, const std::vector<Light>& lights, const std::vector<Material*>& materials) const
 {
-	const int px{ static_cast<int>(pixelIndex) % m_Width };
-	const int py{ static_cast<int>(pixelIndex) / m_Width };
-
-	float gradient = px / static_cast<float>(m_Width);
-	gradient += py / static_cast<float>(m_Width);
-	gradient /= 2.0f;
+	//const int px{ static_cast<int>(pixelIndex) % m_Width };
+	//const int py{ static_cast<int>(pixelIndex) / m_Width };
+	const int px{ pixelIndex % m_Width };
+	const int py{ pixelIndex / m_Width };
 	
-	const float directionX = (2 * ((px + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-	const float directionY = (1 - 2 * ((py + .5f) / m_Height)) * camera.fovRadians;
+	const float directionX{ (2.f * ((px + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians };
+	const float directionY{ (1.f - 2.f * ((py + .5f) / m_Height)) * camera.fovRadians };
 	
-	Vector3 rayDirection{ directionX, directionY, 1 };
-	rayDirection = cameraToWorld.TransformVector(rayDirection);
-	Ray hitRay{ camera.origin, rayDirection };
+	const Vector3 rayDirection{ cameraToWorld.TransformVector(directionX, directionY, 1.f) };
+	//rayDirection = cameraToWorld.TransformVector(rayDirection);
+	const Ray hitRay{ camera.origin, rayDirection };
 	HitRecord hitRecord{};
 	
 	pScene->GetClosestHit(hitRay, hitRecord);
 	
 	ColorRGB finalColor{};
 	if (hitRecord.didHit)
-	{	
+	{
 		Ray rayToLight{};
 		for (const auto& currentLight : lights)
 		{
 			Vector3 directionToLight{ LightUtils::GetDirectionToLight(currentLight, hitRecord.origin) };
-			rayToLight = { hitRecord.origin, directionToLight.Normalized() };
+			Vector3 directionNormalized{ directionToLight.Normalized() };
+			rayToLight = { hitRecord.origin, directionNormalized };
 			rayToLight.min = 0.01f;
 			rayToLight.max = directionToLight.Magnitude();
+			rayToLight.castsShadow = true;
 	
 			if (m_ShadowsEnabled && pScene->DoesHit(rayToLight))
 				continue;
 	
-			const float lambertCos{ Vector3::Dot(hitRecord.normal, directionToLight.Normalized()) };
+			const float lambertCos{ Vector3::Dot(hitRecord.normal, directionNormalized) };
 			if (lambertCos < 0)
 				continue;
 	
 			switch (m_CurrentLightingMode)
 			{
-			case dae::Renderer::LightingMode::ObservedArea:
+			case LightingMode::ObservedArea:
 				finalColor += ColorRGB({1.f, 1.f, 1.f}) * lambertCos;
 				break;
-			case dae::Renderer::LightingMode::Radiance:
+			case LightingMode::Radiance:
 				finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin);
 				break;
-			case dae::Renderer::LightingMode::BRDF:
-				finalColor += materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
+			case LightingMode::BRDF:
+				finalColor += materials[hitRecord.materialIndex]->Shade(hitRecord, directionNormalized, -rayDirection.Normalized());
 				break;
-			case dae::Renderer::LightingMode::Combined:
+			case LightingMode::Combined:
 				finalColor += LightUtils::GetRadiance(currentLight, hitRecord.origin) * lambertCos *
-					materials[hitRecord.materialIndex]->Shade(hitRecord, directionToLight.Normalized(), -rayDirection.Normalized());
-				break;
-			default:
+					materials[hitRecord.materialIndex]->Shade(hitRecord, directionNormalized, -rayDirection.Normalized());
 				break;
 			}
 		}
@@ -172,20 +171,20 @@ void dae::Renderer::RenderPixel(Scene* pScene, uint32_t pixelIndex, float fov, f
 		static_cast<uint8_t>(finalColor.b * 255));
 }
 
-void dae::Renderer::CycleLightingMode()
+void Renderer::CycleLightingMode()
 {
 	switch (m_CurrentLightingMode)
 	{
-	case dae::Renderer::LightingMode::ObservedArea:
+	case LightingMode::ObservedArea:
 		m_CurrentLightingMode = LightingMode::Radiance;
 		break;
-	case dae::Renderer::LightingMode::Radiance:
+	case LightingMode::Radiance:
 		m_CurrentLightingMode = LightingMode::BRDF;
 		break;
-	case dae::Renderer::LightingMode::BRDF:
+	case LightingMode::BRDF:
 		m_CurrentLightingMode = LightingMode::Combined;
 		break;
-	case dae::Renderer::LightingMode::Combined:
+	case LightingMode::Combined:
 		m_CurrentLightingMode = LightingMode::ObservedArea;
 		break;
 	default:
@@ -194,66 +193,42 @@ void dae::Renderer::CycleLightingMode()
 }
 
 #pragma region Level Editing
-void dae::Renderer::SelectBall(float x, float y, Scene* pScene)
+void dae::Renderer::SelectGeometry(const float x, const float y, Scene* pScene) const
 {
 	if (!m_EditMode) return;
 
 	Camera& camera = pScene->GetCamera();
-	float aspectRatio = float(m_Width) / float(m_Height);
+	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
-	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
+	const float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+	const float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
 
 	Vector3 rayDirection{ directionX, directionY, 1 };
 	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
-	Ray hitRay{ camera.origin, rayDirection };
-	HitRecord hitRecord{};
+	const Ray hitRay{ camera.origin, rayDirection };
 
 	pScene->SelectSphere(hitRay);
 }
 
-void dae::Renderer::AddBall(float x, float y, Scene* pScene)
+void dae::Renderer::AddSphere(const float x, const float y, Scene* pScene) const
 {
 	if (!m_EditMode) return;
 
 	Camera& camera = pScene->GetCamera();
-	float aspectRatio = float(m_Width) / float(m_Height);
+	const float aspectRatio = static_cast<float>(m_Width) / static_cast<float>(m_Height);
 
-	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
+	const float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
+	const float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
 
 	Vector3 rayDirection{ directionX, directionY, 1 };
 	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
-	Ray hitRay{ camera.origin, rayDirection };
+	const Ray hitRay{ camera.origin, rayDirection };
 	HitRecord hitRecord{};
 
 	pScene->GetClosestHit(hitRay, hitRecord);
 	if (hitRecord.didHit)
 	{
 		pScene->AddSphereOnClick(hitRecord.origin);
-	}
-}
-
-void dae::Renderer::RemoveBall(float x, float y, Scene* pScene)
-{
-	if (!m_EditMode) return;
-
-	Camera& camera = pScene->GetCamera();
-	float aspectRatio = float(m_Width) / float(m_Height);
-
-	float directionX = (2 * ((x + 0.5f) / m_Width) - 1) * aspectRatio * camera.fovRadians;
-	float directionY = (1 - 2 * ((y + .5f) / m_Height)) * camera.fovRadians;
-
-	Vector3 rayDirection{ directionX, directionY, 1 };
-	rayDirection = camera.CalculateCameraToWorld().TransformVector(rayDirection);
-	Ray hitRay{ camera.origin, rayDirection };
-	HitRecord hitRecord{};
-
-	pScene->GetClosestHit(hitRay, hitRecord);
-
-	if (hitRecord.didHit)
-	{
-		pScene->RemoveSphereOnClick(hitRecord.origin);
 	}
 }
 #pragma endregion

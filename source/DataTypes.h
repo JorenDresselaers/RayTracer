@@ -129,26 +129,15 @@ namespace dae
 		void CalculateNormals()
 		{
 			normals.clear();
-			Vector3 v0{}, v1{}, v2{};
-			for (int currentTriangle{ 0 }; currentTriangle < indices.size(); ++currentTriangle)
+			for (int currentTriangle{ 0 }; currentTriangle < indices.size()-2; currentTriangle += 3)
 			{
-				int index{ currentTriangle % 3 };
-				if (index == 0)
-				{
-					v0 = positions.at(indices.at(currentTriangle));
-				}
-				else if (index == 1)
-				{
-					v1 = positions.at(indices.at(currentTriangle));					
-				}
-				else if (index == 2)
-				{
-					v2 = positions.at(indices.at(currentTriangle));
+				const Vector3 v0{ positions[indices[currentTriangle]] };
+				const Vector3 v1{ positions[indices[currentTriangle + 1]] };
+				const Vector3 v2{ positions[indices[currentTriangle + 2]] };
 
-					const Vector3 a{ v1 - v0 };
-					const Vector3 b{ v2 - v1 };
-					normals.push_back(Vector3::Cross(a, b));
-				}
+				const Vector3 a{ v1 - v0 };
+				const Vector3 b{ v2 - v1 };
+				normals.push_back(Vector3::Cross(a, b));
 			}
 		}
 
@@ -172,13 +161,13 @@ namespace dae
 			//Transform Normals (normals > transformedNormals)
 			for (Vector3& currentNormal : normals)
 			{
-				transformedNormals.emplace_back(finalTransform.TransformVector(currentNormal));
+				transformedNormals.emplace_back(finalTransform.TransformVector(currentNormal).Normalized());
 			}
 		}
 
 		void UpdateAABB()
 		{
-			if (positions.size() > 0)
+			if (!positions.empty())
 			{
 				minAABB = positions[0];
 				maxAABB = positions[0];
@@ -192,10 +181,10 @@ namespace dae
 
 		void UpdateTransformedAABB(const Matrix& finalTransform)
 		{
-			Vector3 tMinAABB = finalTransform.TransformPoint(minAABB);
-			Vector3 tMaxAABB = tMinAABB;
+			Vector3 tMinAABB{ finalTransform.TransformPoint(minAABB) };
+			Vector3 tMaxAABB{ tMinAABB };
 
-			Vector3 tAABB = finalTransform.TransformPoint(maxAABB.x, minAABB.y, minAABB.z);
+			Vector3 tAABB{ finalTransform.TransformPoint(maxAABB.x, minAABB.y, minAABB.z) };
 			tMinAABB = Vector3::Min(tAABB, tMinAABB);
 			tMaxAABB = Vector3::Max(tAABB, tMaxAABB);
 
@@ -253,6 +242,7 @@ namespace dae
 
 		float min{ 0.0001f };
 		float max{ FLT_MAX };
+		bool castsShadow{ false };
 	};
 
 	struct HitRecord

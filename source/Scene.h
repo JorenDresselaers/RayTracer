@@ -51,7 +51,7 @@ namespace dae
 			ResetSelectedMaterial();
 			m_EditMode = !m_EditMode;
 		}
-		bool GetEditMode()
+		bool GetEditMode() const
 		{
 			return m_EditMode;
 		}
@@ -73,6 +73,7 @@ namespace dae
 		SelectedGeometry m_SelectedGeometry{SelectedGeometry::Null};
 		int m_SelectedSphereIndex{ -1 };
 		int m_OriginalMaterial{ -1 };
+		unsigned char m_SelectedMaterial;
 
 
 		std::vector<Plane> m_PlaneGeometries{};

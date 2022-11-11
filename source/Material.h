@@ -54,7 +54,7 @@ namespace dae
 	class Material_Lambert final : public Material
 	{
 	public:
-		Material_Lambert(const ColorRGB& diffuseColor, float diffuseReflectance) :
+		Material_Lambert(const ColorRGB& diffuseColor, const float diffuseReflectance) :
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(diffuseReflectance){}
 
 		ColorRGB Shade(const HitRecord& hitRecord = {}, const Vector3& l = {}, const Vector3& v = {}) override
@@ -74,7 +74,7 @@ namespace dae
 	class Material_LambertPhong final : public Material
 	{
 	public:
-		Material_LambertPhong(const ColorRGB& diffuseColor, float kd, float ks, float phongExponent):
+		Material_LambertPhong(const ColorRGB& diffuseColor, const float kd, const float ks, const float phongExponent):
 			m_DiffuseColor(diffuseColor), m_DiffuseReflectance(kd), m_SpecularReflectance(ks),
 			m_PhongExponent(phongExponent)
 		{
@@ -99,7 +99,7 @@ namespace dae
 	class Material_CookTorrence final : public Material
 	{
 	public:
-		Material_CookTorrence(const ColorRGB& albedo, bool metalness, float roughness):
+		Material_CookTorrence(const ColorRGB& albedo, const bool metalness, const float roughness):
 			m_Albedo(albedo), m_Metalness(metalness), m_Roughness(roughness)
 		{
 		}

@@ -13,6 +13,7 @@ namespace dae {
 		m_PlaneGeometries.reserve(32);
 		m_TriangleMeshGeometries.reserve(32);
 		m_Lights.reserve(32);
+		m_SelectedMaterial = AddMaterial(new Material_CookTorrence({ .75f, .0f, .0f }, false, .1f));
 	}
 
 	Scene::~Scene()
@@ -26,7 +27,7 @@ namespace dae {
 		m_Materials.clear();
 	}
 
-	void dae::Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
+	void Scene::GetClosestHit(const Ray& ray, HitRecord& closestHit) const
 	{
 		HitRecord tempRecord;
 		//planes
@@ -102,10 +103,9 @@ namespace dae {
 		{
 			if (GeometryUtils::HitTest_Sphere(m_SphereGeometries.at(currentSphere), ray))
 			{
-				unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
 				m_SelectedSphereIndex = currentSphere;
 				m_OriginalMaterial = m_SphereGeometries.at(currentSphere).materialIndex;
-				m_SphereGeometries.at(currentSphere).materialIndex = randomMaterial;
+				m_SphereGeometries.at(currentSphere).materialIndex = m_SelectedMaterial;
 				m_SelectedGeometry = SelectedGeometry::Sphere;
 				return;
 			}
@@ -128,10 +128,9 @@ namespace dae {
 
 		if (closestPlaneIndex != -1)
 		{
-			unsigned char randomMaterial{ static_cast<unsigned char> (rand() % m_Materials.size()) };
 			m_SelectedSphereIndex = closestPlaneIndex;
 			m_OriginalMaterial = m_PlaneGeometries.at(closestPlaneIndex).materialIndex;
-			m_PlaneGeometries.at(closestPlaneIndex).materialIndex = randomMaterial;
+			m_PlaneGeometries.at(closestPlaneIndex).materialIndex = m_SelectedMaterial;
 			m_SelectedGeometry = SelectedGeometry::Plane;
 		}
 	}
@@ -140,10 +139,10 @@ namespace dae {
 	{
 		switch (m_SelectedGeometry)
 		{
-		case dae::Scene::SelectedGeometry::Sphere:
+		case SelectedGeometry::Sphere:
 			m_SphereGeometries.at(m_SelectedSphereIndex).origin += offset;
 			break;
-		case dae::Scene::SelectedGeometry::Plane:
+		case SelectedGeometry::Plane:
 			m_PlaneGeometries.at(m_SelectedSphereIndex).origin += offset;
 			break;
 		default:
@@ -155,10 +154,10 @@ namespace dae {
 	{
 		switch (m_SelectedGeometry)
 		{
-		case dae::Scene::SelectedGeometry::Sphere:
+		case SelectedGeometry::Sphere:
 			if (m_OriginalMaterial != -1) m_SphereGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
 			break;
-		case dae::Scene::SelectedGeometry::Plane:
+		case SelectedGeometry::Plane:
 			if (m_OriginalMaterial != -1) m_PlaneGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
 			break;
 		default:
@@ -420,7 +419,7 @@ namespace dae {
 		const auto matLambertPhong_Green = AddMaterial(new Material_LambertPhong({ colors::Green }, 1.f, 1.f, 60.f));
 
 		const auto cubeMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
-		Utils::ParseOBJ("Resources/lowpoly_bunny.obj",
+		Utils::ParseOBJ("Resources/lowpoly_bunny2.obj",
 			cubeMesh->positions,
 			cubeMesh->normals,
 			cubeMesh->indices);
@@ -511,7 +510,7 @@ namespace dae {
 		triangleThree->UpdateAABB();
 		triangleThree->UpdateTransforms();
 		m_pMeshesVector.push_back(triangleThree);
-
+		
 		//Lights
 		AddPointLight({ 0.f, 5.f, 5.f }, 50.f, ColorRGB{ 1.f, .61f, .45f }); //BACKLIGHT
 		AddPointLight({ -2.5f, 5.f, -5.f }, 70.f, ColorRGB{ 1.f, .8f, .45f }); //FRONT LEFT
@@ -537,15 +536,17 @@ namespace dae {
 		m_Camera.origin = { 0.f, 3.f, -9.f };
 		m_Camera.SetFOV(45.f);
 
-		const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, 1.f));
-		const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, .6f));
-		const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, true, .1f));
-		const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, 1.f));
-		const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .6f));
-		const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .1f));
+		//const auto matCT_GrayRoughMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, 1.f));
+		//const auto matCT_GrayMediumMetal = AddMaterial(new Material_CookTorrence({ .972f, .960f, .915f }, true, .6f));
+		//const auto matCT_GraySmoothMetal = AddMaterial(new Material_CookTorrence({ .972f, .75f, .915f }, true, .1f));
+		//const auto matCT_GrayRoughPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, 1.f));
+		//const auto matCT_GrayMediumPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .6f));
+		//const auto matCT_GraySmoothPlastic = AddMaterial(new Material_CookTorrence({ .75f, .75f, .75f }, false, .1f));
 
 		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
 		const auto matLambert_White = AddMaterial(new Material_Lambert(colors::White, 1.f));
+		//const auto matLambert_Red = AddMaterial(new Material_Lambert({ colors::Red }, 1.f));
+		//const auto matLambertPhong_Cyan = AddMaterial(new Material_LambertPhong({ colors::Cyan }, 1.f, 1.f, 60.f));
 
 		//Bunny
 		const auto bunnyMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
@@ -555,6 +556,8 @@ namespace dae {
 			bunnyMesh->indices);
 
 		bunnyMesh->Scale({ 2.f, 2.f, 2.f });
+		//bunnyMesh->Scale({ .5f, .5f, .5f });
+		//bunnyMesh->Scale({ 5.f, 5.f, 5.f });
 		bunnyMesh->UpdateAABB();
 		bunnyMesh->UpdateTransforms();
 
@@ -576,6 +579,7 @@ namespace dae {
 	{
 		Scene::Update(pTimer);
 		const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
+
 		for (TriangleMesh* currentMesh : m_pMeshesVector)
 		{
 			if (currentMesh)
