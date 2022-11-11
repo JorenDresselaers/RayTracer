@@ -59,6 +59,7 @@ namespace dae
 		void SelectSphere(const Ray& ray);
 		void MoveSelectedBall(const Vector3& offset);
 		void ResetSelectedMaterial();
+		//void ToggleRotate();
 
 	protected:
 		std::string	sceneName;
@@ -67,7 +68,8 @@ namespace dae
 		{
 			Null,
 			Sphere,
-			Plane
+			Plane,
+			Mesh
 		};
 		bool m_EditMode{ false };
 		SelectedGeometry m_SelectedGeometry{SelectedGeometry::Null};
@@ -192,6 +194,24 @@ namespace dae
 		Scene_W4_BunnyScene(Scene_W4_BunnyScene&&) noexcept = delete;
 		Scene_W4_BunnyScene& operator=(const Scene_W4_BunnyScene&) = delete;
 		Scene_W4_BunnyScene& operator=(Scene_W4_BunnyScene&&) noexcept = delete;
+
+		void Initialize() override;
+		void Update(Timer* pTimer) override;
+
+	private:
+		std::vector<TriangleMesh*> m_pMeshesVector;
+	};
+
+	class Scene_W4_ExtraScene final : public Scene
+	{
+	public:
+		Scene_W4_ExtraScene() = default;
+		~Scene_W4_ExtraScene() override = default;
+
+		Scene_W4_ExtraScene(const Scene_W4_ExtraScene&) = delete;
+		Scene_W4_ExtraScene(Scene_W4_ExtraScene&&) noexcept = delete;
+		Scene_W4_ExtraScene& operator=(const Scene_W4_ExtraScene&) = delete;
+		Scene_W4_ExtraScene& operator=(Scene_W4_ExtraScene&&) noexcept = delete;
 
 		void Initialize() override;
 		void Update(Timer* pTimer) override;

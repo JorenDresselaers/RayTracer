@@ -113,6 +113,18 @@ namespace dae {
 
 		if (m_SelectedGeometry != SelectedGeometry::Null) return;
 
+		for (int currentMesh{ 0 }; currentMesh < m_TriangleMeshGeometries.size(); ++currentMesh)
+		{
+			if (GeometryUtils::HitTest_TriangleMesh(m_TriangleMeshGeometries.at(currentMesh), ray))
+			{
+				m_SelectedSphereIndex = currentMesh;
+				m_OriginalMaterial = m_TriangleMeshGeometries.at(currentMesh).materialIndex;
+				m_TriangleMeshGeometries.at(currentMesh).materialIndex = m_SelectedMaterial;
+				m_SelectedGeometry = SelectedGeometry::Mesh;
+				return;
+			}
+		}
+
 		int closestPlaneIndex{ -1 };
 		for (int currentPlane{0}; currentPlane < m_PlaneGeometries.size(); ++currentPlane)
 		{
@@ -145,6 +157,10 @@ namespace dae {
 		case SelectedGeometry::Plane:
 			m_PlaneGeometries.at(m_SelectedSphereIndex).origin += offset;
 			break;
+		case SelectedGeometry::Mesh:
+			m_TriangleMeshGeometries.at(m_SelectedSphereIndex).Translate(m_TriangleMeshGeometries.at(m_SelectedSphereIndex).translationTransform.GetTranslation() + offset);
+			m_TriangleMeshGeometries.at(m_SelectedSphereIndex).UpdateTransforms();
+			break;
 		default:
 			break;
 		}
@@ -160,10 +176,27 @@ namespace dae {
 		case SelectedGeometry::Plane:
 			if (m_OriginalMaterial != -1) m_PlaneGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
 			break;
+		case SelectedGeometry::Mesh:
+			if (m_OriginalMaterial != -1) m_TriangleMeshGeometries.at(m_SelectedSphereIndex).materialIndex = m_OriginalMaterial;
+			break;
 		default:
 			break;
 		}
 	}
+
+	//void Scene::ToggleRotate()
+	//{
+	//	switch (m_SelectedGeometry)
+	//	{
+	//	case dae::Scene::SelectedGeometry::Null:
+	//		break;
+	//	case dae::Scene::SelectedGeometry::Plane:
+	//		Scene::
+	//		break;
+	//	default:
+	//		break;
+	//	}
+	//}
 
 	void Scene::RemoveSphereOnClick(Vector3 origin)
 	{
@@ -545,11 +578,14 @@ namespace dae {
 
 		const auto matLambert_GrayBlue = AddMaterial(new Material_Lambert({ .49f, .57f, .57f }, 1.f));
 		const auto matLambert_White = AddMaterial(new Material_Lambert(colors::White, 1.f));
+		const auto matLambert_ExtraWhite = AddMaterial(new Material_Lambert(ColorRGB(5.f, 5.f, 5.f), 1.f));
 		//const auto matLambert_Red = AddMaterial(new Material_Lambert({ colors::Red }, 1.f));
 		//const auto matLambertPhong_Cyan = AddMaterial(new Material_LambertPhong({ colors::Cyan }, 1.f, 1.f, 60.f));
 
+		const unsigned char matId_Solid_White = AddMaterial(new Material_SolidColor{ colors::White });
+
 		//Bunny
-		const auto bunnyMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matLambert_White);
+		const auto bunnyMesh = AddTriangleMesh(TriangleCullMode::BackFaceCulling, matId_Solid_White);
 		Utils::ParseOBJ("Resources/lowpoly_bunny2.obj",
 			bunnyMesh->positions,
 			bunnyMesh->normals,
@@ -576,6 +612,24 @@ namespace dae {
 		AddPointLight({ 2.5f, 2.5f, -5.f }, 50.f, ColorRGB{ .34f, .47f, .68f }); //BACK LEFT
 	}
 	void Scene_W4_BunnyScene::Update(Timer* pTimer)
+	{
+		Scene::Update(pTimer);
+		const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
+
+		for (TriangleMesh* currentMesh : m_pMeshesVector)
+		{
+			if (currentMesh)
+			{
+				currentMesh->RotateY(yawAngle);
+				currentMesh->UpdateTransforms();
+			}
+		}
+	}
+
+	void Scene_W4_ExtraScene::Initialize()
+	{
+	}
+	void Scene_W4_ExtraScene::Update(Timer* pTimer)
 	{
 		Scene::Update(pTimer);
 		const auto yawAngle{ (cos(pTimer->GetTotal()) + 1.f) / 2.f * PI_2 };
