@@ -14,6 +14,11 @@
 
 using namespace dae;
 
+// TO-DO
+// add transparency and refraction
+// https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-overview/light-transport-ray-tracing-whitted.html
+
+
 void ShutDown(SDL_Window* pWindow)
 {
 	SDL_DestroyWindow(pWindow);
